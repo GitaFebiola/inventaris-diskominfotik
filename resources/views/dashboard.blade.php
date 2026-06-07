@@ -3,120 +3,309 @@
 @section('title', 'Dashboard Inventaris')
 
 @section('content')
+
 <div class="container-fluid">
+
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+
+        <h1 class="h3 mb-0 text-gray-800">
+            Dashboard Inventaris
+        </h1>
+
     </div>
 
-    <!-- Kartu Ringkasan (Stats) -->
     <div class="row">
-        <!-- Kartu 1: Total Barang -->
+
+        {{-- TOTAL BARANG --}}
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2" style="border-left: 5px solid #4e73df;">
+
+            <div class="card shadow h-100 py-2"
+                 style="border-left:5px solid #4e73df;">
+
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Aset (Barang)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">1,250</div>
+
+                    <div class="row align-items-center">
+
+                        <div class="col">
+
+                            <div class="text-xs fw-bold text-primary text-uppercase mb-1">
+
+                                Total Barang
+
+                            </div>
+
+                            <div class="h5 mb-0 fw-bold">
+
+                                {{ number_format($totalBarang) }}
+
+                            </div>
+
                         </div>
+
                         <div class="col-auto">
-                            <i class="fas fa-box fa-2x text-gray-300" style="opacity: 0.5;"></i>
+
+                            <i class="fas fa-box fa-2x text-secondary opacity-50"></i>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
 
-        <!-- Kartu 2: Total Nilai Aset -->
+        {{-- TOTAL NILAI ASET --}}
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2" style="border-left: 5px solid #1cc88a;">
+
+            <div class="card shadow h-100 py-2"
+                 style="border-left:5px solid #1cc88a;">
+
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Nilai Aset</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp 4.5 M</div>
+
+                    <div class="row align-items-center">
+
+                        <div class="col">
+
+                            <div class="text-xs fw-bold text-success text-uppercase mb-1">
+
+                                Total Nilai Aset
+
+                            </div>
+
+                            <div class="h5 mb-0 fw-bold">
+
+                                Rp {{ number_format($totalNilaiAset,0,',','.') }}
+
+                            </div>
+
                         </div>
+
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300" style="opacity: 0.5;"></i>
+
+                            <i class="fas fa-money-bill-wave fa-2x text-secondary opacity-50"></i>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
 
-        <!-- Kartu 3: Perlu Perbaikan -->
+        {{-- PERBAIKAN --}}
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2" style="border-left: 5px solid #f6c23e;">
+
+            <div class="card shadow h-100 py-2"
+                 style="border-left:5px solid #f6c23e;">
+
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Rusak / Perbaikan</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+
+                    <div class="row align-items-center">
+
+                        <div class="col">
+
+                            <div class="text-xs fw-bold text-warning text-uppercase mb-1">
+
+                                Barang Perbaikan
+
+                            </div>
+
+                            <div class="h5 mb-0 fw-bold">
+
+                                {{ $totalPerbaikan }}
+
+                            </div>
+
                         </div>
+
                         <div class="col-auto">
-                            <i class="fas fa-tools fa-2x text-gray-300" style="opacity: 0.5;"></i>
+
+                            <i class="fas fa-tools fa-2x text-secondary opacity-50"></i>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
-        
-        <!-- Kartu 4: Pengajuan Pemutihan -->
+
+        {{-- DIHAPUS --}}
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2" style="border-left: 5px solid #e74a3b;">
+
+            <div class="card shadow h-100 py-2"
+                 style="border-left:5px solid #e74a3b;">
+
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Proses Pemutihan</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+
+                    <div class="row align-items-center">
+
+                        <div class="col">
+
+                            <div class="text-xs fw-bold text-danger text-uppercase mb-1">
+
+                                Barang Dihapus
+
+                            </div>
+
+                            <div class="h5 mb-0 fw-bold">
+
+                                {{ $totalDihapus }}
+
+                            </div>
+
                         </div>
+
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300" style="opacity: 0.5;"></i>
+
+                            <i class="fas fa-trash fa-2x text-secondary opacity-50"></i>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
 
-    <!-- Contoh Tabel Recent Activity -->
+    {{-- AKTIVITAS TERBARU --}}
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Aktivitas Inventaris Terakhir</h6>
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Aktivitas Inventaris Terbaru
+            </h5>
+
         </div>
+
         <div class="card-body">
+
             <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
+
+                <table class="table table-bordered align-middle">
+
                     <thead>
+
                         <tr>
-                            <th>Tanggal</th>
-                            <th>Aksi</th>
-                            <th>Barang</th>
-                            <th>User</th>
+
+                            <th width="150">
+                                Tanggal
+                            </th>
+
+                            <th width="180">
+                                Aktivitas
+                            </th>
+
+                            <th>
+                                Barang
+                            </th>
+
+                            <th width="120">
+                                User
+                            </th>
+
                         </tr>
+
                     </thead>
+
                     <tbody>
+
+                    @forelse($aktivitas as $item)
+
                         <tr>
-                            <td>2023-10-24</td>
-                            <td><span class="badge bg-success">Mutasi Masuk</span></td>
-                            <td>Laptop Dell Latitude (NUP: 001)</td>
-                            <td>Admin</td>
+
+                            <td>
+
+                                {{ \Carbon\Carbon::parse($item['tanggal'])->format('d-m-Y') }}
+
+                            </td>
+
+                            <td>
+
+                                @if($item['aksi'] == 'Pengadaan')
+
+                                    <span class="badge bg-primary">
+                                        Pengadaan
+                                    </span>
+
+                                @elseif($item['aksi'] == 'Mutasi')
+
+                                    <span class="badge bg-success">
+                                        Mutasi
+                                    </span>
+
+                                @elseif($item['aksi'] == 'Perbaikan')
+
+                                    <span class="badge bg-warning text-dark">
+                                        Perbaikan
+                                    </span>
+
+                                @elseif($item['aksi'] == 'Selesai Perbaikan')
+
+                                    <span class="badge bg-info">
+                                        Selesai Perbaikan
+                                    </span>
+
+                                @elseif($item['aksi'] == 'Penghapusan')
+
+                                    <span class="badge bg-danger">
+                                        Penghapusan
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+                            <td>
+
+                                {{ $item['barang'] }}
+
+                            </td>
+
+                            <td>
+
+                                Admin
+
+                            </td>
+
                         </tr>
+
+                    @empty
+
                         <tr>
-                            <td>2023-10-23</td>
-                            <td><span class="badge bg-warning">Pemeliharaan</span></td>
-                            <td>Printer Epson L3110 (NUP: 045)</td>
-                            <td>Admin</td>
+
+                            <td colspan="4"
+                                class="text-center">
+
+                                Belum ada aktivitas.
+
+                            </td>
+
                         </tr>
+
+                    @endforelse
+
                     </tbody>
+
                 </table>
+
             </div>
+
         </div>
+
     </div>
 
 </div>
+
 @endsection

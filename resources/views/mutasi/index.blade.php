@@ -1,0 +1,104 @@
+@extends('layouts.admin')
+
+@section('title','Mutasi Barang')
+
+@section('content')
+
+<div class="card shadow-sm">
+
+    <div class="card-header d-flex justify-content-between">
+
+        <h5>Data Mutasi</h5>
+
+        <a href="{{ route('mutasi.create') }}"
+           class="btn btn-primary">
+
+            Tambah Mutasi
+
+        </a>
+
+    </div>
+
+    <div class="card-body">
+
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+        <x-search-bar
+    :action="route('mutasi.index')"
+    placeholder="Cari data..." />
+
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Barang</th>
+                    <th>Ruangan Asal</th>
+                    <th>Ruangan Tujuan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            @forelse($mutasi as $item)
+
+            <tr>
+
+                <td>{{ $loop->iteration }}</td>
+
+                <td>{{ $item->tanggal_mutasi }}</td>
+
+                <td>{{ $item->barang->nama_barang }}</td>
+
+                <td>{{ $item->ruanganAsal->nama_ruangan }}</td>
+
+                <td>{{ $item->ruanganTujuan->nama_ruangan }}</td>
+
+                <td>
+
+                    <a href="{{ route('mutasi.show',$item->id) }}"
+                       class="btn btn-info btn-sm">
+
+                        Detail
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+            @empty
+
+            <tr>
+                <td colspan="6"
+                    class="text-center">
+
+                    Data kosong
+
+                </td>
+            </tr>
+
+            @endforelse
+
+            </tbody>
+
+        </table>
+
+        {{ $mutasi->links() }}
+
+    </div>
+
+</div>
+
+@endsection

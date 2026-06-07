@@ -7,59 +7,108 @@ use Illuminate\Http\Request;
 
 class RuanganController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    public function index(Request $request)
+{
+    $query = Ruangan::query();
+
+    if ($request->filled('search')) {
+
+        $query->where('nama_ruangan', 'like', '%' . $request->search . '%')
+              ->orWhere('penanggung_jawab', 'like', '%' . $request->search . '%');
+
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    $ruangan = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view(
+        'ruangan.index',
+        compact('ruangan')
+    );
+}
+
     public function create()
     {
-        //
+        return view('ruangan.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nama_ruangan' => 'required|max:100',
+            'penanggung_jawab' => 'nullable|max:100'
+        ]);
+
+        Ruangan::create([
+            'nama_ruangan' => $request->nama_ruangan,
+            'penanggung_jawab' => $request->penanggung_jawab
+        ]);
+
+        return redirect()
+            ->route('ruangan.index')
+            ->with(
+                'success',
+                'Ruangan berhasil ditambahkan'
+            );
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Ruangan $ruangan)
     {
-        //
+        return view(
+            'ruangan.show',
+            compact('ruangan')
+        );
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Ruangan $ruangan)
     {
-        //
+        return view(
+            'ruangan.edit',
+            compact('ruangan')
+        );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Ruangan $ruangan)
-    {
-        //
+    public function update(
+        Request $request,
+        Ruangan $ruangan
+    ) {
+        $request->validate([
+            'nama_ruangan' =>
+                'required|max:100',
+
+            'penanggung_jawab' =>
+                'nullable|max:100'
+        ]);
+
+        $ruangan->update([
+
+            'nama_ruangan' =>
+                $request->nama_ruangan,
+
+            'penanggung_jawab' =>
+                $request->penanggung_jawab
+        ]);
+
+        return redirect()
+            ->route('ruangan.index')
+            ->with(
+                'success',
+                'Ruangan berhasil diperbarui'
+            );
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Ruangan $ruangan)
-    {
-        //
+    public function destroy(
+        Ruangan $ruangan
+    ) {
+        $ruangan->delete();
+
+        return redirect()
+            ->route('ruangan.index')
+            ->with(
+                'success',
+                'Ruangan berhasil dihapus'
+            );
     }
 }

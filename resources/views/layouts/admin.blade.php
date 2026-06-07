@@ -140,25 +140,25 @@
 
             <!-- Group: Master Data -->
             <div class="sidebar-heading">Master Data</div>
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('ruangan.index') }}">
                 <i class="fas fa-door-open"></i> Ruangan
             </a>
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('kategori.index') }}">
                 <i class="fas fa-tags"></i> Kategori
             </a>
 
             <!-- Group: Inventaris -->
             <div class="sidebar-heading">Inventaris</div>
-            <a class="nav-link" href="#">
-                <i class="fas fa-boxes"></i> Data Barang
+            <a class="nav-link" href="{{ route('barang.index') }}">
+                <i class="fas fa-boxes"></i> Pengadaan
             </a>
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('mutasi.index') }}">
                 <i class="fas fa-exchange-alt"></i> Mutasi
             </a>
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('pemeliharaan.index') }}">
                 <i class="fas fa-tools"></i> Pemeliharaan
             </a>
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('penghapusan.index') }}">
                 <i class="fas fa-trash-alt"></i> Penghapusan
             </a>
 
@@ -216,6 +216,15 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+@yield('scripts')
 
     <!-- Script Khusus untuk Sidebar Mobile -->
     <script>
@@ -241,20 +250,6 @@
             }
         });
     </script>
-    <script type="text/javascript">
-        // 1. Mencegah navigasi history standard (Kuno tapi kadang masih dipakai browser lama)
-        function preventBack() { window.history.forward(); }
-        setTimeout("preventBack()", 0);
-        window.onunload = function(){ null };
-
-        // 2. Deteksi BF Cache (Back Forward Cache) - Cara Modern
-        window.addEventListener('pageshow', function(event) {
-            // Jika event.persisted bernilai true, artinya halaman dimuat dari cache (tombol back)
-            if (event.persisted) {
-                // Paksa reload halaman agar Laravel mengecek ulang session
-                window.location.reload(); 
-            }
-        });
-    </script>
+    
 </body>
 </html>
