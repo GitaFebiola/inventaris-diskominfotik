@@ -18,7 +18,6 @@
         </a>
 
     </div>
-
     <div class="card-body">
         <x-search-bar
     :action="route('pemeliharaan.index')"
@@ -29,6 +28,7 @@
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Tanggal</th>
                     <th>No Register</th>
                     <th>Barang</th>
                     <th>Status</th>
@@ -43,7 +43,7 @@
             <tr>
 
                 <td>{{ $loop->iteration }}</td>
-
+                <td>{{ $item->tanggal_pemeliharaan }}</td>
                 <td>
                     {{ $item->barang->nomor_register }}
                 </td>
@@ -91,14 +91,11 @@
             </tr>
 
             @endforeach
-
             </tbody>
-
         </table>
         {{ $pemeliharaan->links() }}
 
     </div>
-
 </div>
 
 @endsection

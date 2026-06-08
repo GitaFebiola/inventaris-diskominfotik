@@ -204,6 +204,10 @@
                             </th>
 
                             <th width="180">
+                                No Register
+                            </th>
+
+                            <th width="180">
                                 Aktivitas
                             </th>
 
@@ -226,9 +230,11 @@
                         <tr>
 
                             <td>
-
                                 {{ \Carbon\Carbon::parse($item['tanggal'])->format('d-m-Y') }}
+                            </td>
 
+                            <td>
+                                {{ $item['nomor_register'] ?? '-' }}
                             </td>
 
                             <td>
@@ -285,7 +291,7 @@
 
                         <tr>
 
-                            <td colspan="4"
+                            <td colspan="5"
                                 class="text-center">
 
                                 Belum ada aktivitas.

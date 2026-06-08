@@ -18,7 +18,6 @@
         </a>
 
     </div>
-
     <div class="card-body">
 
         @if(session('success'))
@@ -42,6 +41,7 @@
                 <tr>
                     <th>No</th>
                     <th>Tanggal</th>
+                    <th>No Register</th>
                     <th>Barang</th>
                     <th>Ruangan Asal</th>
                     <th>Ruangan Tujuan</th>
@@ -56,15 +56,11 @@
             <tr>
 
                 <td>{{ $loop->iteration }}</td>
-
                 <td>{{ $item->tanggal_mutasi }}</td>
-
+                <td>{{ $item->barang->nomor_register }}</td>
                 <td>{{ $item->barang->nama_barang }}</td>
-
                 <td>{{ $item->ruanganAsal->nama_ruangan }}</td>
-
                 <td>{{ $item->ruanganTujuan->nama_ruangan }}</td>
-
                 <td>
 
                     <a href="{{ route('mutasi.show',$item->id) }}"
@@ -81,7 +77,7 @@
             @empty
 
             <tr>
-                <td colspan="6"
+                <td colspan="7"
                     class="text-center">
 
                     Data kosong
@@ -92,7 +88,6 @@
             @endforelse
 
             </tbody>
-
         </table>
 
         {{ $mutasi->links() }}

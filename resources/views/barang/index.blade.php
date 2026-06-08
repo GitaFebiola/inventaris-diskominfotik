@@ -33,7 +33,9 @@
 
                 <th>No</th>
 
-                <th>Register</th>
+                <th>Tanggal</th>
+
+                <th>No Register</th>
 
                 <th>Nama Barang</th>
 
@@ -58,6 +60,8 @@
             <tr>
 
                 <td>{{ $loop->iteration }}</td>
+
+                <td>{{ $item->created_at }}</td>
 
                 <td>{{ $item->nomor_register }}</td>
 

@@ -128,8 +128,9 @@ class BarangController extends Controller
 
         if ($request->hasFile('foto')) {
 
+            // Diubah dari 'local' menjadi 'public'
             $fotoPath = $request->file('foto')
-                ->store('barang', 'local');
+                ->store('barang', 'public');
         }
 
         Barang::create([
@@ -218,14 +219,17 @@ class BarangController extends Controller
 
             if (
                 $barang->foto &&
-                Storage::disk('local')->exists($barang->foto)
+                // Diubah disk('local') menjadi disk('public')
+                Storage::disk('public')->exists($barang->foto)
             ) {
-                Storage::disk('local')
+                // Diubah disk('local') menjadi disk('public')
+                Storage::disk('public')
                     ->delete($barang->foto);
             }
 
+            // Diubah dari 'local' menjadi 'public'
             $fotoPath = $request->file('foto')
-                ->store('barang', 'local');
+                ->store('barang', 'public');
         }
 
         $barang->update([
@@ -263,9 +267,11 @@ class BarangController extends Controller
     {
         if (
             $barang->foto &&
-            Storage::disk('local')->exists($barang->foto)
+            // Diubah disk('local') menjadi disk('public')
+            Storage::disk('public')->exists($barang->foto)
         ) {
-            Storage::disk('local')
+            // Diubah disk('local') menjadi disk('public')
+            Storage::disk('public')
                 ->delete($barang->foto);
         }
 
