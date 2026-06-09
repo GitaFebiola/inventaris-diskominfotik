@@ -20,13 +20,10 @@
     </div>
 
     <div class="card-body">
-        <x-search-bar
-    :action="route('barang.index')"
-    placeholder="Cari nomor register, nama barang, atau lainnya..." />
 
-<x-responsive-table>
+<x-datatable>
 
-    <table class="table table-bordered table-striped align-middle">
+<table class="table table-bordered table-striped align-middle datatable">
             <thead>
 
             <tr>
@@ -59,7 +56,7 @@
 
             <tr>
 
-                <td>{{ $loop->iteration }}</td>
+                <td></td>
 
                 <td>{{ $item->created_at }}</td>
 
@@ -100,10 +97,9 @@
             </tbody>
 
         </table>
-        </x-responsive-table>
-        <div class="mt-3">
+</x-datatable>
+            <div class="mt-3">
 
-    {{ $barang->links() }}
 
 </div>
 

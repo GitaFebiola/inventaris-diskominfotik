@@ -33,8 +33,7 @@ class PemeliharaanController extends Controller
 
     $pemeliharaan = $query
         ->latest()
-        ->paginate(10)
-        ->withQueryString();
+    ->get();
 
     return view(
         'pemeliharaan.index',

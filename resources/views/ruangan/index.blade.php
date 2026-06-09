@@ -26,12 +26,10 @@
                 {{ session('success') }}
             </div>
         @endif
-        <x-search-bar
-    :action="route('ruangan.index')"
-    placeholder="Cari ruangan..." />
 
-        <table class="table table-bordered">
+<x-datatable>
 
+<table class="table table-bordered table-striped align-middle datatable">
             <thead>
             <tr>
                 <th>No</th>
@@ -47,7 +45,7 @@
 
             <tr>
 
-                <td>{{ $loop->iteration }}</td>
+                <td></td>
 
                 <td>{{ $item->nama_ruangan }}</td>
 
@@ -96,9 +94,7 @@
 
             </tbody>
 
-        </table>
-
-        {{ $ruangan->links() }}
+</x-datatable>
 
     </div>
 

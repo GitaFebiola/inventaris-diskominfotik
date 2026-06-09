@@ -44,8 +44,9 @@ class DashboardController extends Controller
 
             $aktivitas->push([
                 'tanggal' => $item->created_at,
-                'aksi'    => 'Pengadaan',
-                'barang'  => $item->nama_barang
+                'nomor_register' => $item->nomor_register,
+                'aksi' => 'Pengadaan',
+                'barang' => $item->nama_barang
             ]);
         }
 
@@ -65,8 +66,9 @@ class DashboardController extends Controller
 
             $aktivitas->push([
                 'tanggal' => $item->tanggal_mutasi,
-                'aksi'    => 'Mutasi',
-                'barang'  => $item->barang->nama_barang
+                'nomor_register' => $item->barang->nomor_register,
+                'aksi' => 'Mutasi',
+                'barang' => $item->barang->nama_barang
             ]);
         }
 
@@ -87,11 +89,15 @@ class DashboardController extends Controller
             $aktivitas->push([
                 'tanggal' => $item->updated_at,
 
+                'nomor_register' =>
+                    $item->barang->nomor_register,
+
                 'aksi' => $item->status == 'Selesai'
                     ? 'Selesai Perbaikan'
                     : 'Perbaikan',
 
-                'barang' => $item->barang->nama_barang
+                'barang' =>
+                    $item->barang->nama_barang
             ]);
         }
 
@@ -110,9 +116,16 @@ class DashboardController extends Controller
         ) {
 
             $aktivitas->push([
-                'tanggal' => $item->tanggal_penghapusan,
-                'aksi'    => 'Penghapusan',
-                'barang'  => $item->barang->nama_barang
+                'tanggal' =>
+                    $item->tanggal_penghapusan,
+
+                'nomor_register' =>
+                    $item->barang->nomor_register,
+
+                'aksi' => 'Penghapusan',
+
+                'barang' =>
+                    $item->barang->nama_barang
             ]);
         }
 

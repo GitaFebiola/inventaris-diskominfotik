@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kategori;
+use App\Models\Barang;
 use Illuminate\Http\Request;
 
 class KategoriController extends Controller
@@ -23,8 +24,7 @@ class KategoriController extends Controller
 
     $kategori = $query
         ->latest()
-        ->paginate(10)
-        ->withQueryString();
+    ->get();
 
     return view(
         'kategori.index',
@@ -74,33 +74,52 @@ class KategoriController extends Controller
     }
 
     public function update(
-        Request $request,
-        Kategori $kategori
-    ) {
-        $request->validate([
-            'kode_bmd' =>
-                'required|max:20|unique:kategoris,kode_bmd,' .
-                $kategori->id,
+    Request $request,
+    Kategori $kategori
+) {
+    $request->validate([
+        'kode_bmd' =>
+            'required|max:20|unique:kategoris,kode_bmd,' .
+            $kategori->id,
 
-            'nama_kategori' =>
-                'required|max:100'
+        'nama_kategori' =>
+            'required|max:100'
+    ]);
+
+    $kategori->update([
+        'kode_bmd' => $request->kode_bmd,
+        'nama_kategori' => $request->nama_kategori
+    ]);
+
+    $barangList = Barang::where(
+        'kategori_id',
+        $kategori->id
+    )->get();
+
+    foreach ($barangList as $barang) {
+
+        $parts = explode(
+            '-',
+            $barang->nomor_register
+        );
+
+        $urutan = end($parts);
+
+        $barang->update([
+            'nomor_register' =>
+                $request->kode_bmd .
+                '-' .
+                $urutan
         ]);
-
-        $kategori->update([
-            'kode_bmd' =>
-                $request->kode_bmd,
-
-            'nama_kategori' =>
-                $request->nama_kategori
-        ]);
-
-        return redirect()
-            ->route('kategori.index')
-            ->with(
-                'success',
-                'Kategori berhasil diubah'
-            );
     }
+
+    return redirect()
+        ->route('kategori.index')
+        ->with(
+            'success',
+            'Kategori berhasil diubah'
+        );
+}
 
     public function destroy(
         Kategori $kategori

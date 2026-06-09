@@ -33,8 +33,7 @@ class PenghapusanController extends Controller
 
     $penghapusan = $query
         ->latest()
-        ->paginate(10)
-        ->withQueryString();
+    ->get();
 
     return view(
         'penghapusan.index',

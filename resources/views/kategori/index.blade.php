@@ -26,12 +26,10 @@
                 {{ session('success') }}
             </div>
         @endif
-        <x-search-bar
-    :action="route('kategori.index')"
-    placeholder="Cari kategori..." />
+       
+<x-datatable>
 
-        <table class="table table-bordered">
-
+<table class="table table-bordered table-striped align-middle datatable">
             <thead>
                 <tr>
                     <th width="80">No</th>
@@ -105,12 +103,11 @@
 
             </tbody>
 
-        </table>
-
-        {{ $kategori->links() }}
+</x-datatable>
 
     </div>
 
 </div>
+
 
 @endsection

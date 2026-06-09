@@ -52,9 +52,8 @@ class BarangController extends Controller
     }
 
     $barang = $query
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+    ->latest()
+    ->get();
 
     return view(
         'barang.index',

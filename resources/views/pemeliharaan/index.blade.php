@@ -19,12 +19,10 @@
 
     </div>
     <div class="card-body">
-        <x-search-bar
-    :action="route('pemeliharaan.index')"
-    placeholder="Cari barang yang diperbaiki..." />
 
-        <table class="table table-bordered">
+<x-datatable>
 
+<table class="table table-bordered table-striped align-middle datatable">
             <thead>
                 <tr>
                     <th>No</th>
@@ -42,7 +40,7 @@
 
             <tr>
 
-                <td>{{ $loop->iteration }}</td>
+                <td></td>
                 <td>{{ $item->tanggal_pemeliharaan }}</td>
                 <td>
                     {{ $item->barang->nomor_register }}
@@ -92,10 +90,8 @@
 
             @endforeach
             </tbody>
-        </table>
-        {{ $pemeliharaan->links() }}
-
-    </div>
+</x-datatable>    </div>
 </div>
+
 
 @endsection

@@ -20,12 +20,10 @@
     </div>
 
     <div class="card-body">
-        <x-search-bar
-    :action="route('penghapusan.index')"
-    placeholder="Cari penghapusan..." />
 
-        <table class="table table-bordered">
+<x-datatable>
 
+<table class="table table-bordered table-striped align-middle datatable">
             <thead>
                 <tr>
                     <th>No</th>
@@ -43,7 +41,7 @@
 
             <tr>
 
-                <td>{{ $loop->iteration }}</td>
+                <td></td>
 
                 <td>{{ $item->tanggal_penghapusan }}</td>
 
@@ -70,10 +68,7 @@
 
             </tbody>
 
-        </table>
-        {{ $penghapusan->links() }}
-
-    </div>
+</x-datatable>    </div>
 
 </div>
 

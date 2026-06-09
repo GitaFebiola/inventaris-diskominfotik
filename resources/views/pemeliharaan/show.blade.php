@@ -59,6 +59,9 @@
             </tr>
 
         </table>
+         <a href="{{ route('pemeliharaan.index') }}" class="btn btn-secondary">
+            Kembali
+        </a>
 
     </div>
 

@@ -20,8 +20,7 @@ class RuanganController extends Controller
 
     $ruangan = $query
         ->latest()
-        ->paginate(10)
-        ->withQueryString();
+    ->get();
 
     return view(
         'ruangan.index',

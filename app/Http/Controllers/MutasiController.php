@@ -33,13 +33,13 @@ class MutasiController extends Controller
             );
 
         });
+        
 
     }
 
     $mutasi = $query
         ->latest()
-        ->paginate(10)
-        ->withQueryString();
+    ->get();
 
     return view(
         'mutasi.index',

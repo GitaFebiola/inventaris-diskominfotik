@@ -31,12 +31,10 @@
                 {{ session('error') }}
             </div>
         @endif
-        <x-search-bar
-    :action="route('mutasi.index')"
-    placeholder="Cari data..." />
 
-        <table class="table table-bordered">
+<x-datatable>
 
+<table class="table table-bordered table-striped align-middle datatable">
             <thead>
                 <tr>
                     <th>No</th>
@@ -55,7 +53,7 @@
 
             <tr>
 
-                <td>{{ $loop->iteration }}</td>
+                <td></td>
                 <td>{{ $item->tanggal_mutasi }}</td>
                 <td>{{ $item->barang->nomor_register }}</td>
                 <td>{{ $item->barang->nama_barang }}</td>
@@ -88,12 +86,10 @@
             @endforelse
 
             </tbody>
-        </table>
-
-        {{ $mutasi->links() }}
-
+</x-datatable>
     </div>
 
 </div>
+
 
 @endsection
