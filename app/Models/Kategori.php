@@ -20,4 +20,12 @@ class Kategori extends Model
             'kategori_id'
         );
     }
+
+    public function merk()
+{
+    return $this->hasMany(
+        Merk::class,
+        'kategori_id'
+    );
+}
 }

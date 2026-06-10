@@ -18,8 +18,58 @@
         </a>
 
     </div>
-
     <div class="card-body">
+        @php
+ $bulanList = [
+    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+];
+@endphp
+
+<form method="GET" action="{{ route('barang.index') }}" class="mb-3 d-flex gap-2 align-items-center">
+
+    {{-- BULAN --}}
+    <select name="bulan" class="form-select shadow-sm rounded-3" style="max-width: 200px;">
+        <option value="">Pilih Bulan</option>
+        @foreach($bulanList as $key => $value)
+            <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
+                {{ $value }}
+            </option>
+        @endforeach
+    </select>
+
+    {{-- TAHUN --}}
+    <select name="tahun" class="form-select shadow-sm rounded-3" style="max-width: 150px;">
+        <option value="">Tahun</option>
+        @for($i = date('Y'); $i >= 2020; $i--)
+            <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>
+                {{ $i }}
+            </option>
+        @endfor
+    </select>
+
+    {{-- BUTTON FILTER --}}
+    <button type="submit" class="btn btn-primary shadow-sm px-3 rounded-3">
+        Filter
+    </button>
+
+    {{-- PDF --}}
+    <a href="{{ route('barang.pdf', request()->all()) }}"
+       class="btn btn-success shadow-sm px-3 rounded-3">
+        Unduh PDF
+    </a>
+
+    {{-- DISPLAY SELECTED FILTER --}}
+    @if(request('bulan') || request('tahun'))
+        <div class="ms-3 text-muted small">
+            <strong>Filter aktif:</strong>
+            {{ $bulanList[request('bulan')] ?? '-' }}
+            {{ request('tahun') ?? '' }}
+        </div>
+    @endif
+
+</form>
 
 <x-datatable>
 
@@ -69,8 +119,11 @@
                 <td>{{ $item->ruangan->nama_ruangan }}</td>
 
                 <td>{{ $item->kondisi }}</td>
-
-                <td>{{ $item->status }}</td>
+                
+                {{-- DIUBAH: Logika tampilan Status --}}
+                <td>
+                    {{ $item->status == 'Aktif' ? 'Bagus' : $item->status }}
+                </td>
 
                 <td>
 

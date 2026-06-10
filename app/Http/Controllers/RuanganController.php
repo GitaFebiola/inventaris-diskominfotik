@@ -17,6 +17,13 @@ class RuanganController extends Controller
               ->orWhere('penanggung_jawab', 'like', '%' . $request->search . '%');
 
     }
+    // FILTER BULAN & TAHUN
+    if ($request->bulan && $request->tahun) {
+        $query->whereMonth('created_at', $request->bulan)
+              ->whereYear('created_at', $request->tahun);
+    } elseif ($request->tahun) {
+        $query->whereYear('created_at', $request->tahun);
+    }
 
     $ruangan = $query
         ->latest()

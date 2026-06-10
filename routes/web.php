@@ -2,6 +2,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\MerkController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\MutasiController;
@@ -21,8 +22,11 @@ Route::middleware(['auth', 'prevent-back'])->group(function () {
 
     Route::resource('kategori', KategoriController::class);
 
-    Route::resource('ruangan', RuanganController::class);
+    Route::resource('merk', MerkController::class);
 
+    Route::resource('ruangan', RuanganController::class);
+    
+    Route::get('/barang/pdf', [BarangController::class, 'pdf'])->name('barang.pdf');
     Route::resource('barang', BarangController::class);
 
     Route::resource('mutasi', MutasiController::class);

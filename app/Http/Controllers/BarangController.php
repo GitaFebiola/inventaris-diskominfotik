@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Ruangan;
-use Illuminate\Http\Request;
+use App\Models\Merk;
+use Barryvdh\DomPDF\Facade\Pdf;use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
@@ -16,6 +17,13 @@ class BarangController extends Controller
         'kategori',
         'ruangan'
     ]);
+    // FILTER BULAN & TAHUN
+    if ($request->bulan && $request->tahun) {
+        $query->whereMonth('created_at', $request->bulan)
+              ->whereYear('created_at', $request->tahun);
+    } elseif ($request->tahun) {
+        $query->whereYear('created_at', $request->tahun);
+    }
 
     if($request->search)
     {
@@ -64,12 +72,15 @@ class BarangController extends Controller
     public function create()
     {
         $kategori = Kategori::orderBy('nama_kategori')->get();
-
         $ruangan = Ruangan::orderBy('nama_ruangan')->get();
+        
+        // Ambil semua data merk untuk diolah di dropdown
+        $merk = Merk::all(); 
 
         return view('barang.create', compact(
             'kategori',
-            'ruangan'
+            'ruangan',
+            'merk' // Kirim variabel merk ke view
         ));
     }
 
@@ -283,4 +294,22 @@ class BarangController extends Controller
                 'Barang berhasil dihapus'
             );
     }
+
+public function pdf(Request $request)
+{
+    $query = Barang::with(['kategori', 'ruangan']);
+
+    if ($request->bulan && $request->tahun) {
+        $query->whereMonth('created_at', $request->bulan)
+              ->whereYear('created_at', $request->tahun);
+    } elseif ($request->tahun) {
+        $query->whereYear('created_at', $request->tahun);
+    }
+
+    $barang = $query->get();
+
+    $pdf = Pdf::loadView('barang.pdf', compact('barang'));
+
+    return $pdf->download('laporan-barang.pdf');
+}
 }

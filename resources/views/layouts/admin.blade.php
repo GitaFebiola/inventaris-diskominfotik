@@ -144,7 +144,10 @@
                 <i class="fas fa-door-open"></i> Ruangan
             </a>
             <a class="nav-link" href="{{ route('kategori.index') }}">
-                <i class="fas fa-tags"></i> Kategori
+                <i class="fas fa-star"></i> Kategori
+            </a>
+            <a class="nav-link" href="{{ route('merk.index') }}">
+                <i class="fas fa-tags"></i> Merk
             </a>
 
             <!-- Group: Inventaris -->

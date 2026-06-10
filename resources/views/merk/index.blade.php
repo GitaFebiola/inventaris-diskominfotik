@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title','Kategori')
+@section('title','Merk')
 
 @section('content')
 
@@ -8,12 +8,12 @@
 
     <div class="card-header d-flex justify-content-between">
 
-        <h5>Data Kategori</h5>
+        <h5>Data Merk</h5>
 
-        <a href="{{ route('kategori.create') }}"
+        <a href="{{ route('merk.create') }}"
            class="btn btn-primary">
 
-            Tambah Kategori
+            Tambah Merk
 
         </a>
 
@@ -21,27 +21,24 @@
 
     <div class="card-body">
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-       
-<x-datatable>
+        <x-datatable>
 
-<table class="table table-bordered table-striped align-middle datatable">
+        <table class="table table-bordered table-striped align-middle datatable">
+
             <thead>
+
                 <tr>
                     <th width="80">No</th>
-                    <th>Kode BMD</th>
-                    <th>Nama Kategori</th>
+                    <th>Kategori</th>
+                    <th>Nama Merk</th>
                     <th width="200">Aksi</th>
                 </tr>
+
             </thead>
 
             <tbody>
 
-            @forelse($kategori as $item)
+                @forelse($merk as $item)
 
                 <tr>
 
@@ -50,16 +47,16 @@
                     </td>
 
                     <td>
-                        {{ $item->kode_bmd }}
+                        {{ $item->kategori->nama_kategori }}
                     </td>
 
                     <td>
-                        {{ $item->nama_kategori }}
+                        {{ $item->nama_merk }}
                     </td>
 
                     <td>
 
-                        <a href="{{ route('kategori.edit',$item->id) }}"
+                        <a href="{{ route('merk.edit',$item->id) }}"
                            class="btn btn-warning btn-sm">
 
                             Edit
@@ -67,20 +64,20 @@
                         </a>
 
                         <form
-                            action="{{ route('kategori.destroy',$item->id) }}"
+                            action="{{ route('merk.destroy',$item->id) }}"
                             method="POST"
                             class="d-inline">
 
                             @csrf
-                            <!-- @method('DELETE')
+                            @method('DELETE')
 
                             <button
                                 class="btn btn-danger btn-sm"
-                                onclick="return confirm('Hapus kategori?')">
+                                onclick="return confirm('Hapus merk?')">
 
                                 Hapus
 
-                            </button> -->
+                            </button>
 
                         </form>
 
@@ -88,26 +85,17 @@
 
                 </tr>
 
-            @empty
-
-                <tr>
-                    <td colspan="4"
-                        class="text-center">
-
-                        Data kosong
-
-                    </td>
-                </tr>
-
-            @endforelse
+                @empty
+                @endforelse
 
             </tbody>
 
-</x-datatable>
+        </table>
+
+        </x-datatable>
 
     </div>
 
 </div>
-
 
 @endsection

@@ -30,6 +30,13 @@ class PemeliharaanController extends Controller
         });
 
     }
+    // FILTER BULAN & TAHUN
+    if ($request->bulan && $request->tahun) {
+        $query->whereMonth('created_at', $request->bulan)
+              ->whereYear('created_at', $request->tahun);
+    } elseif ($request->tahun) {
+        $query->whereYear('created_at', $request->tahun);
+    }
 
     $pemeliharaan = $query
         ->latest()

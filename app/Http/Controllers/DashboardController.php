@@ -11,11 +11,12 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $totalBarang = Barang::count();
+        // DIUBAH: Menghitung barang yang statusnya BUKAN 'Dihapus'
+        $totalBarang = Barang::where('status', '!=', 'Dihapus')->count();
 
-        $totalNilaiAset = Barang::sum(
-            'harga_perolehan'
-        );
+        // DIUBAH: Menghitung nilai aset yang statusnya BUKAN 'Dihapus' (Agar data seimbang)
+        $totalNilaiAset = Barang::where('status', '!=', 'Dihapus')
+            ->sum('harga_perolehan');
 
         $totalPerbaikan = Barang::where(
             'status',
