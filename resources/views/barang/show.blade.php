@@ -21,12 +21,11 @@
                 <td>{{ $barang->nama_barang }}</td>
             </tr>
 
-            <!-- TAMBAHKAN BAGIAN INI UNTUK FOTO -->
+            <!-- FOTO -->
             <tr>
                 <th>Foto Barang</th>
                 <td>
                     @if($barang->foto)
-                        <!-- Storage::url() akan mengubah path storage menjadi URL publik -->
                         <img src="{{ Storage::url($barang->foto) }}" 
                              alt="Foto {{ $barang->nama_barang }}" 
                              class="img-fluid rounded shadow-sm" 
@@ -36,7 +35,6 @@
                     @endif
                 </td>
             </tr>
-            <!-- END FOTO -->
 
             <tr>
                 <th>Kategori</th>
@@ -53,9 +51,15 @@
                 <td>{{ $barang->merk }}</td>
             </tr>
 
+            <!-- SUMBER ANGGARAN -->
+            <tr>
+                <th>Sumber Anggaran</th>
+                <td>{{ $barang->Sumber ?? '-' }}</td>
+            </tr>
+
             <tr>
                 <th>Spesifikasi</th>
-                <td>{{ $barang->spesifikasi }}</td>
+                <td>{!! nl2br(e($barang->spesifikasi)) !!}</td>
             </tr>
 
             <tr>

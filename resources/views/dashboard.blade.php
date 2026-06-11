@@ -177,6 +177,24 @@
         </div>
 
     </div>
+    {{-- GRAFIK INVENTARIS --}}
+<div class="card shadow mb-4">
+
+    <div class="card-header">
+
+        <h5 class="mb-0">
+            Grafik Jumlah Barang per Kategori
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <canvas id="grafikKategori"></canvas>
+
+    </div>
+
+</div>
 
     {{-- AKTIVITAS TERBARU --}}
     <div class="card shadow mb-4">
@@ -313,5 +331,88 @@
     </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const grafikKategori = document.getElementById('grafikKategori');
+
+if(grafikKategori)
+{
+    new Chart(grafikKategori, {
+
+        type: 'bar',
+
+        data: {
+
+            labels: [
+
+                @foreach($grafikKategori as $item)
+
+                    '{{ $item->nama_kategori }}',
+
+                @endforeach
+
+            ],
+
+            datasets: [{
+
+                label: 'Jumlah Barang',
+
+                data: [
+
+                    @foreach($grafikKategori as $item)
+
+                        {{ $item->barang_count }},
+
+                    @endforeach
+
+                ],
+
+                backgroundColor: [
+                    '#4e73df',
+                    '#1cc88a',
+                    '#36b9cc',
+                    '#f6c23e',
+                    '#e74a3b',
+                    '#858796',
+                    '#20c997',
+                    '#6f42c1'
+                ],
+
+                borderWidth: 1
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        precision: 0
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+}
+
+</script>
 
 @endsection

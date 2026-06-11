@@ -15,6 +15,7 @@ class Barang extends Model
         'ruangan_id',
         'nama_barang',
         'merk',
+        'Sumber', 
         'spesifikasi',
         'foto',
         'tahun_perolehan',

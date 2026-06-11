@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\Mutasi;
 use App\Models\Pemeliharaan;
 use App\Models\Penghapusan;
+use App\Models\Kategori;
 
 class DashboardController extends Controller
 {
@@ -140,6 +141,9 @@ class DashboardController extends Controller
             ->sortByDesc('tanggal')
             ->take(10);
 
+        // DATA GRAFIK
+        $grafikKategori = Kategori::withCount('barang')->get();
+
         return view(
             'dashboard',
             compact(
@@ -147,7 +151,8 @@ class DashboardController extends Controller
                 'totalNilaiAset',
                 'totalPerbaikan',
                 'totalDihapus',
-                'aktivitas'
+                'aktivitas',
+                'grafikKategori'
             )
         );
     }

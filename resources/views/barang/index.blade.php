@@ -49,23 +49,37 @@
         @endfor
     </select>
 
+        {{-- KONDISI --}}
+    <select name="kondisi" class="form-select shadow-sm rounded-3" style="max-width: 180px;">
+    <option value="">Kondisi</option>
+    <option value="Baik" {{ request('kondisi') == 'Baik' ? 'selected' : '' }}>Baik</option>
+    
+    {{-- PASTIKAN VALUE HANYA "Rusak", BUKAN "Rusak (Semua)" --}}
+    <option value="Rusak" {{ request('kondisi') == 'Rusak' ? 'selected' : '' }}>Rusak (Semua)</option>
+    
+    <option value="Rusak Ringan" {{ request('kondisi') == 'Rusak Ringan' ? 'selected' : '' }}>Rusak Ringan</option>
+    <option value="Rusak Berat" {{ request('kondisi') == 'Rusak Berat' ? 'selected' : '' }}>Rusak Berat</option>
+</select>
+
     {{-- BUTTON FILTER --}}
     <button type="submit" class="btn btn-primary shadow-sm px-3 rounded-3">
         Filter
     </button>
 
     {{-- PDF --}}
+    <!-- request()->all() akan mengirimkan parameter bulan, tahun, dan kondisi ke PDF -->
     <a href="{{ route('barang.pdf', request()->all()) }}"
        class="btn btn-success shadow-sm px-3 rounded-3">
         Unduh PDF
     </a>
 
     {{-- DISPLAY SELECTED FILTER --}}
-    @if(request('bulan') || request('tahun'))
+    @if(request('bulan') || request('tahun') || request('kondisi'))
         <div class="ms-3 text-muted small">
             <strong>Filter aktif:</strong>
             {{ $bulanList[request('bulan')] ?? '-' }}
             {{ request('tahun') ?? '' }}
+            {{ request('kondisi') ? '| Kondisi: ' . request('kondisi') : '' }}
         </div>
     @endif
 
@@ -102,13 +116,13 @@
 
             <tbody>
 
-            @foreach($barang as $item)
+            @foreach($barang as $index => $item) <!-- Tambah $index untuk nomor urut -->
 
             <tr>
 
-                <td></td>
+                <td class="text-center">{{ $index + 1 }}</td> <!-- Tampilkan Nomor -->
 
-                <td>{{ $item->created_at }}</td>
+                <td>{{ $item->created_at->format('d-m-Y') }}</td> <!-- Format Tanggal -->
 
                 <td>{{ $item->nomor_register }}</td>
 

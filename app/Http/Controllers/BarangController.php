@@ -6,69 +6,85 @@ use App\Models\Barang;
 use App\Models\Kategori;
 use App\Models\Ruangan;
 use App\Models\Merk;
-use Barryvdh\DomPDF\Facade\Pdf;use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
-    public function index(Request $request)
-{
-    $query = Barang::with([
-        'kategori',
-        'ruangan'
-    ]);
-    // FILTER BULAN & TAHUN
-    if ($request->bulan && $request->tahun) {
-        $query->whereMonth('created_at', $request->bulan)
-              ->whereYear('created_at', $request->tahun);
-    } elseif ($request->tahun) {
-        $query->whereYear('created_at', $request->tahun);
-    }
-
-    if($request->search)
+        public function index(Request $request)
     {
-        $query->where(function($q)
-            use ($request)
+        $query = Barang::with([
+            'kategori',
+            'ruangan'
+        ]);
+        // FILTER BULAN & TAHUN
+        if ($request->bulan && $request->tahun) {
+            $query->whereMonth('created_at', $request->bulan)
+                  ->whereYear('created_at', $request->tahun);
+        } elseif ($request->tahun) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+
+        // FILTER SEARCH
+        if($request->search)
         {
-            $q->where(
-                'nomor_register',
-                'like',
-                '%'.$request->search.'%'
-            )
-            ->orWhere(
-                'nama_barang',
-                'like',
-                '%'.$request->search.'%'
-            )
-            ->orWhere(
-                'merk',
-                'like',
-                '%'.$request->search.'%'
-            )
-            
-            ->orWhere(
-                'kondisi',
-                'like',
-                '%'.$request->search.'%'
-            )
-            ->orWhere(
-                'status',
-                'like',
-                '%'.$request->search.'%'
-            );
-        });
+            $query->where(function($q)
+                use ($request)
+            {
+                $q->where(
+                    'nomor_register',
+                    'like',
+                    '%'.$request->search.'%'
+                )
+                ->orWhere(
+                    'nama_barang',
+                    'like',
+                    '%'.$request->search.'%'
+                )
+                ->orWhere(
+                    'merk',
+                    'like',
+                    '%'.$request->search.'%'
+                )
+                ->orWhere(
+                    'Sumber',
+                    'like',
+                    '%'.$request->search.'%'
+                )
+                ->orWhere(
+                    'kondisi',
+                    'like',
+                    '%'.$request->search.'%'
+                )
+                ->orWhere(
+                    'status',
+                    'like',
+                    '%'.$request->search.'%'
+                );
+            });
+        }
+
+                // FILTER KONDISI
+        if ($request->kondisi) {
+            if ($request->kondisi == 'Rusak') {
+                // Jika pilih 'Rusak', cari yang mengandung kata 'Rusak' (Gabungan)
+                $query->where('kondisi', 'like', '%Rusak%');
+            } else {
+                // Jika pilih yang lain (Rusak Ringan, Rusak Berat, Baik), cari persis
+                $query->where('kondisi', $request->kondisi);
+            }
+        }
+
+        $barang = $query
+        ->latest()
+        ->get();
+
+        return view(
+            'barang.index',
+            compact('barang')
+        );
     }
-
-    $barang = $query
-    ->latest()
-    ->get();
-
-    return view(
-        'barang.index',
-        compact('barang')
-    );
-}
-
     public function create()
     {
         $kategori = Kategori::orderBy('nama_kategori')->get();
@@ -80,7 +96,7 @@ class BarangController extends Controller
         return view('barang.create', compact(
             'kategori',
             'ruangan',
-            'merk' // Kirim variabel merk ke view
+            'merk'
         ));
     }
 
@@ -127,6 +143,7 @@ class BarangController extends Controller
             'ruangan_id' => 'required|exists:ruangans,id',
             'nama_barang' => 'required|max:150',
             'merk' => 'nullable|max:100',
+            'Sumber' => 'required|max:100', 
             'spesifikasi' => 'nullable',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'tahun_perolehan' => 'required|digits:4',
@@ -137,8 +154,6 @@ class BarangController extends Controller
         $fotoPath = null;
 
         if ($request->hasFile('foto')) {
-
-            // Diubah dari 'local' menjadi 'public'
             $fotoPath = $request->file('foto')
                 ->store('barang', 'public');
         }
@@ -160,6 +175,8 @@ class BarangController extends Controller
 
             'merk' =>
                 $request->merk,
+
+            'Sumber' => $request->Sumber, // Simpan Sumber
 
             'spesifikasi' =>
                 $request->spesifikasi,
@@ -203,6 +220,8 @@ class BarangController extends Controller
 
     public function edit(Barang $barang)
     {
+        // Tidak perlu passing variable tambahan di controller agar tidak "ubah kode lain"
+        // Data master akan diambil langsung di view menggunakan @php
         return view(
             'barang.edit',
             compact('barang')
@@ -216,6 +235,7 @@ class BarangController extends Controller
         $request->validate([
             'nama_barang' => 'required|max:150',
             'merk' => 'nullable|max:100',
+            'Sumber' => 'nullable|max:100', // Validasi Sumber
             'spesifikasi' => 'nullable',
             'tahun_perolehan' => 'required|digits:4',
             'harga_perolehan' => 'required|numeric|min:0',
@@ -229,15 +249,12 @@ class BarangController extends Controller
 
             if (
                 $barang->foto &&
-                // Diubah disk('local') menjadi disk('public')
                 Storage::disk('public')->exists($barang->foto)
             ) {
-                // Diubah disk('local') menjadi disk('public')
                 Storage::disk('public')
                     ->delete($barang->foto);
             }
 
-            // Diubah dari 'local' menjadi 'public'
             $fotoPath = $request->file('foto')
                 ->store('barang', 'public');
         }
@@ -248,6 +265,8 @@ class BarangController extends Controller
 
             'merk' =>
                 $request->merk,
+
+            'Sumber' => $request->Sumber, // Update Sumber
 
             'spesifikasi' =>
                 $request->spesifikasi,
@@ -277,10 +296,8 @@ class BarangController extends Controller
     {
         if (
             $barang->foto &&
-            // Diubah disk('local') menjadi disk('public')
             Storage::disk('public')->exists($barang->foto)
         ) {
-            // Diubah disk('local') menjadi disk('public')
             Storage::disk('public')
                 ->delete($barang->foto);
         }
@@ -295,21 +312,40 @@ class BarangController extends Controller
             );
     }
 
-public function pdf(Request $request)
-{
-    $query = Barang::with(['kategori', 'ruangan']);
+            public function pdf(Request $request)
+    {
+        $query = Barang::with(['kategori', 'ruangan']);
 
-    if ($request->bulan && $request->tahun) {
-        $query->whereMonth('created_at', $request->bulan)
-              ->whereYear('created_at', $request->tahun);
-    } elseif ($request->tahun) {
-        $query->whereYear('created_at', $request->tahun);
+        // Filter Bulan & Tahun
+        if ($request->bulan && $request->tahun) {
+            $query->whereMonth('created_at', $request->bulan)
+                  ->whereYear('created_at', $request->tahun);
+        } elseif ($request->tahun) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+
+        // --- BAGIAN PENTING: FILTER KONDISI ---
+        if ($request->kondisi) {
+            $kondisiVal = $request->kondisi;
+
+            // Debug: Jika masih kosong, buka tanda komentar di bawah untuk melihat isinya
+            // dd($kondisiVal); 
+
+            if ($kondisiVal == 'Rusak') {
+                // Jika pilih 'Rusak', cari yang mengandung kata 'Rusak' (Gabungan)
+                $query->where('kondisi', 'like', '%Rusak%');
+            } else {
+                // Jika pilih yang lain, cari persis
+                $query->where('kondisi', 'like', '%' . $kondisiVal . '%');
+            }
+        }
+        // ---------------------------------------
+
+        $barang = $query->get();
+
+        $pdf = Pdf::loadView('barang.pdf', compact('barang'))
+                 ->setPaper('a4', 'landscape');
+
+        return $pdf->download('laporan-barang.pdf');
     }
-
-    $barang = $query->get();
-
-    $pdf = Pdf::loadView('barang.pdf', compact('barang'));
-
-    return $pdf->download('laporan-barang.pdf');
-}
 }
