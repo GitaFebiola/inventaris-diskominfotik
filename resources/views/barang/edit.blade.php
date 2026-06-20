@@ -117,6 +117,13 @@
                           rows="4"
                           class="form-control">{{ old('spesifikasi', $barang->spesifikasi) }}</textarea>
             </div>
+             <div class="col-md-12 mb-3">
+                <label class="form-label">Keterangan</label>
+                <textarea name="keterangan"
+                          rows="3"
+                          class="form-control"
+                          placeholder="Tambahkan keterangan jika diperlukan">{{ old('keterangan', $barang->keterangan) }}</textarea>
+            </div>
 
             <div class="col-md-4 mb-3">
                 <label class="form-label">Tahun Perolehan</label>

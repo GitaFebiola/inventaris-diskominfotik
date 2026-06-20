@@ -177,26 +177,8 @@
         </div>
 
     </div>
-    {{-- GRAFIK INVENTARIS --}}
-<div class="card shadow mb-4">
 
-    <div class="card-header">
-
-        <h5 class="mb-0">
-            Grafik Jumlah Barang per Kategori
-        </h5>
-
-    </div>
-
-    <div class="card-body">
-
-        <canvas id="grafikKategori"></canvas>
-
-    </div>
-
-</div>
-
-    {{-- AKTIVITAS TERBARU --}}
+    {{-- AKTIVITAS TERBARU (DIPINDAH KE ATAS) --}}
     <div class="card shadow mb-4">
 
         <div class="card-header">
@@ -233,17 +215,14 @@
                                 Barang
                             </th>
 
-                            <th width="120">
-                                User
-                            </th>
-
                         </tr>
 
                     </thead>
 
                     <tbody>
 
-                    @forelse($aktivitas as $item)
+                    {{-- DIUBAH: Ditambahkan ->sortByDesc('tanggal') agar terbaru di atas --}}
+                    @forelse(collect($aktivitas)->sortByDesc('tanggal') as $item)
 
                         <tr>
 
@@ -297,19 +276,13 @@
 
                             </td>
 
-                            <td>
-
-                                Admin
-
-                            </td>
-
                         </tr>
 
                     @empty
 
                         <tr>
 
-                            <td colspan="5"
+                            <td colspan="4"
                                 class="text-center">
 
                                 Belum ada aktivitas.
@@ -330,11 +303,58 @@
 
     </div>
 
+    {{-- BARIS GRAFIK 1: KATEGORI & KONDISI --}}
+    <div class="row mb-4">
+        
+        {{-- GRAFIK INVENTARIS KATEGORI --}}
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Grafik Jumlah Barang per Kategori</h5>
+                </div>
+                <div class="card-body" style="height: 350px;">
+                    <canvas id="grafikKategori"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {{-- GRAFIK KONDISI BARANG (IDE BARU) --}}
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Kondisi Barang Saat Ini</h5>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center" style="height: 350px;">
+                    <canvas id="grafikKondisi"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- BARIS GRAFIK 2: TREN BULANAN --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">Tren Pengadaan 6 Bulan Terakhir</h5>
+                </div>
+                <div class="card-body" style="height: 350px;">
+                    <canvas id="grafikTren"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 
+// ==========================================
+// 1. GRAFIK KATEGORI (BAR CHART)
+// ==========================================
 const grafikKategori = document.getElementById('grafikKategori');
 
 if(grafikKategori)
@@ -369,18 +389,32 @@ if(grafikKategori)
 
                 ],
 
+                // PALET WARNA MODERN (Soft Gradient Colors)
                 backgroundColor: [
-                    '#4e73df',
-                    '#1cc88a',
-                    '#36b9cc',
-                    '#f6c23e',
-                    '#e74a3b',
-                    '#858796',
-                    '#20c997',
-                    '#6f42c1'
+                    'rgba(99, 102, 241, 0.75)',   // Indigo
+                    'rgba(59, 130, 246, 0.75)',   // Blue
+                    'rgba(14, 165, 233, 0.75)',   // Sky
+                    'rgba(20, 184, 166, 0.75)',   // Teal
+                    'rgba(34, 197, 94, 0.75)',    // Green
+                    'rgba(234, 179, 8, 0.75)',    // Yellow
+                    'rgba(249, 115, 22, 0.75)',   // Orange
+                    'rgba(239, 68, 68, 0.75)'    // Red
                 ],
-
-                borderWidth: 1
+                hoverBackgroundColor: [
+                    'rgba(99, 102, 241, 1)',
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(14, 165, 233, 1)',
+                    'rgba(20, 184, 166, 1)',
+                    'rgba(34, 197, 94, 1)',
+                    'rgba(234, 179, 8, 1)',
+                    'rgba(249, 115, 22, 1)',
+                    'rgba(239, 68, 68, 1)'
+                ],
+                borderRadius: 8,          // Sudut membulat pada batang
+                borderSkipped: false,     // Membulatkan semua sudut
+                borderWidth: 0,           // Hilangkan garis tepi hitam
+                barPercentage: 0.6,
+                categoryPercentage: 0.7
 
             }]
 
@@ -392,6 +426,20 @@ if(grafikKategori)
 
             maintainAspectRatio: false,
 
+            plugins: {
+                legend: {
+                    display: false // Sembunyikan legend karena hanya 1 dataset
+                },
+                tooltip: {
+                    backgroundColor: '#0f172a', // Warna tooltip senada sidebar
+                    titleFont: { size: 13, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 12,
+                    cornerRadius: 6,
+                    displayColors: false
+                }
+            },
+
             scales: {
 
                 y: {
@@ -399,17 +447,124 @@ if(grafikKategori)
                     beginAtZero: true,
 
                     ticks: {
-
-                        precision: 0
-
+                        precision: 0,
+                        color: '#64748b', // Warna teks abu-abu lembut
+                        font: { size: 12 }
+                    },
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.15)', // Garis grid sangat tipis dan transparan
+                        drawBorder: false,
+                    },
+                    border: {
+                        display: false // Hilangkan garis tepi kiri
                     }
 
+                },
+
+                x: {
+                    ticks: {
+                        color: '#475569',
+                        font: { size: 12 }
+                    },
+                    grid: {
+                        display: false // Hilangkan garis grid vertikal
+                    },
+                    border: {
+                        display: false // Hilangkan garis tepi bawah
+                    }
                 }
 
             }
 
         }
 
+    });
+}
+
+// ==========================================
+// 2. GRAFIK KONDISI BARANG (DOUGHNUT CHART)
+// ==========================================
+const ctxKondisi = document.getElementById('grafikKondisi');
+if(ctxKondisi) {
+    new Chart(ctxKondisi, {
+        type: 'doughnut',
+        data: {
+            labels: ['Baik', 'Rusak Ringan', 'Rusak Berat'],
+            datasets: [{
+                data: [
+                    {{ $grafikKondisi['Baik'] }}, 
+                    {{ $grafikKondisi['Rusak Ringan'] }}, 
+                    {{ $grafikKondisi['Rusak Berat'] }}
+                ],
+                backgroundColor: [
+                    'rgba(34, 197, 94, 0.85)',  // Hijau
+                    'rgba(249, 115, 22, 0.85)', // Orange
+                    'rgba(239, 68, 68, 0.85)'   // Merah
+                ],
+                borderWidth: 0,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true, 
+            maintainAspectRatio: false,
+            cutout: '70%', // Membuat cincin tipis yang modern
+            plugins: {
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: '#475569', padding: 15, usePointStyle: true, pointStyle: 'circle' } 
+                },
+                tooltip: { backgroundColor: '#0f172a', padding: 12, cornerRadius: 6 }
+            }
+        }
+    });
+}
+
+// ==========================================
+// 3. GRAFIK TREN BULANAN (LINE CHART)
+// ==========================================
+const ctxTren = document.getElementById('grafikTren');
+if(ctxTren) {
+    new Chart(ctxTren, {
+        type: 'line',
+        data: {
+            labels: [{!! implode(',', array_map(function($lbl) { return "'$lbl'"; }, $labelsBulan)) !!}],
+            datasets: [{
+                label: 'Total Barang Masuk',
+                data: [{!! implode(',', $trenBulanan) !!}],
+                borderColor: 'rgba(99, 102, 241, 1)',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 3,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: 'rgba(99, 102, 241, 1)',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true, // Memberikan efek area gradient di bawah garis
+                tension: 0.4 // Membuat garis melengkung halus
+            }]
+        },
+        options: {
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false }, 
+                tooltip: { backgroundColor: '#0f172a', padding: 12, cornerRadius: 6, displayColors: false } 
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { precision: 0, color: '#64748b' }, 
+                    grid: { color: 'rgba(148, 163, 184, 0.15)', drawBorder: false }, 
+                    border: { display: false } 
+                },
+                x: { 
+                    ticks: { color: '#475569' }, 
+                    grid: { display: false }, 
+                    border: { display: false } 
+                }
+            }
+        }
     });
 }
 

@@ -61,6 +61,10 @@
                 <th>Spesifikasi</th>
                 <td>{!! nl2br(e($barang->spesifikasi)) !!}</td>
             </tr>
+            <tr>
+                <th>Keterangan</th>
+                <td>{{ $barang->keterangan ?? '-' }}</td>
+            </tr>
 
             <tr>
                 <th>Tahun Perolehan</th>

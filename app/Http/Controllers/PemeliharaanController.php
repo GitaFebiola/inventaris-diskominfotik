@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Pemeliharaan;
+use App\Models\Ruangan;
 use Illuminate\Http\Request;
 
 class PemeliharaanController extends Controller
@@ -48,20 +49,20 @@ class PemeliharaanController extends Controller
     );
 }
 
-    public function create()
-    {
-        $barang = Barang::where(
-                'status',
-                'Aktif'
-            )
-            ->orderBy('nama_barang')
-            ->get();
+public function create()
+{
+    $barang = Barang::with('ruangan')
+        ->where('status', 'Aktif')
+        ->orderBy('nama_barang')
+        ->get();
 
-        return view(
-            'pemeliharaan.create',
-            compact('barang')
-        );
-    }
+    $ruangan = Ruangan::orderBy('nama_ruangan')->get();
+
+    return view(
+        'pemeliharaan.create',
+        compact('barang', 'ruangan')
+    );
+}
 
     public function store(Request $request)
     {

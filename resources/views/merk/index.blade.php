@@ -68,7 +68,7 @@
                             method="POST"
                             class="d-inline">
 
-                            @csrf
+                            <!-- @csrf
                             @method('DELETE')
 
                             <button
@@ -77,7 +77,7 @@
 
                                 Hapus
 
-                            </button>
+                            </button> -->
 
                         </form>
 

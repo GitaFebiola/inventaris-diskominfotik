@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MerkController;
@@ -10,13 +11,22 @@ use App\Http\Controllers\PemeliharaanController;
 use App\Http\Controllers\PenghapusanController;
 use App\Http\Controllers\DashboardController;
 
-// Login
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login-proses', [AuthController::class, 'login']); 
 
 Route::middleware(['auth', 'prevent-back'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+    Route::resource('users', UserController::class)->names([
+        'index' => 'users.index',
+        'create' => 'users.create',
+        'store' => 'users.store',
+        'edit' => 'users.edit',
+        'update' => 'users.update',
+        'destroy' => 'users.destroy',
+    ]);
+
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

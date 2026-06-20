@@ -7,27 +7,20 @@ use App\Models\Mutasi;
 use App\Models\Pemeliharaan;
 use App\Models\Penghapusan;
 use App\Models\Kategori;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // DIUBAH: Menghitung barang yang statusnya BUKAN 'Dihapus'
         $totalBarang = Barang::where('status', '!=', 'Dihapus')->count();
 
-        // DIUBAH: Menghitung nilai aset yang statusnya BUKAN 'Dihapus' (Agar data seimbang)
         $totalNilaiAset = Barang::where('status', '!=', 'Dihapus')
             ->sum('harga_perolehan');
 
-        $totalPerbaikan = Barang::where(
-            'status',
-            'Perbaikan'
-        )->count();
+        $totalPerbaikan = Barang::where('status', 'Perbaikan')->count();
 
-        $totalDihapus = Barang::where(
-            'status',
-            'Dihapus'
-        )->count();
+        $totalDihapus = Barang::where('status', 'Dihapus')->count();
 
         $aktivitas = collect();
 
@@ -36,14 +29,7 @@ class DashboardController extends Controller
         | Pengadaan Barang
         |--------------------------------------------------------------------------
         */
-
-        foreach (
-            Barang::latest()
-                ->take(5)
-                ->get()
-            as $item
-        ) {
-
+        foreach (Barang::latest()->take(5)->get() as $item) {
             $aktivitas->push([
                 'tanggal' => $item->created_at,
                 'nomor_register' => $item->nomor_register,
@@ -57,17 +43,10 @@ class DashboardController extends Controller
         | Mutasi Barang
         |--------------------------------------------------------------------------
         */
-
-        foreach (
-            Mutasi::with('barang')
-                ->latest()
-                ->take(5)
-                ->get()
-            as $item
-        ) {
-
+        foreach (Mutasi::with('barang')->latest()->take(5)->get() as $item) {
             $aktivitas->push([
-                'tanggal' => $item->tanggal_mutasi,
+                // DIBENAHI: Tambah ->endOfDay() agar seimbang dengan timestamp created_at
+                'tanggal' => Carbon::parse($item->tanggal_mutasi)->endOfDay(), 
                 'nomor_register' => $item->barang->nomor_register,
                 'aksi' => 'Mutasi',
                 'barang' => $item->barang->nama_barang
@@ -79,27 +58,12 @@ class DashboardController extends Controller
         | Pemeliharaan / Perbaikan
         |--------------------------------------------------------------------------
         */
-
-        foreach (
-            Pemeliharaan::with('barang')
-                ->latest()
-                ->take(5)
-                ->get()
-            as $item
-        ) {
-
+        foreach (Pemeliharaan::with('barang')->latest()->take(5)->get() as $item) {
             $aktivitas->push([
                 'tanggal' => $item->updated_at,
-
-                'nomor_register' =>
-                    $item->barang->nomor_register,
-
-                'aksi' => $item->status == 'Selesai'
-                    ? 'Selesai Perbaikan'
-                    : 'Perbaikan',
-
-                'barang' =>
-                    $item->barang->nama_barang
+                'nomor_register' => $item->barang->nomor_register,
+                'aksi' => $item->status == 'Selesai' ? 'Selesai Perbaikan' : 'Perbaikan',
+                'barang' => $item->barang->nama_barang
             ]);
         }
 
@@ -108,26 +72,13 @@ class DashboardController extends Controller
         | Penghapusan Barang
         |--------------------------------------------------------------------------
         */
-
-        foreach (
-            Penghapusan::with('barang')
-                ->latest()
-                ->take(5)
-                ->get()
-            as $item
-        ) {
-
+        foreach (Penghapusan::with('barang')->latest()->take(5)->get() as $item) {
             $aktivitas->push([
-                'tanggal' =>
-                    $item->tanggal_penghapusan,
-
-                'nomor_register' =>
-                    $item->barang->nomor_register,
-
+                // DIBENAHI: Tambah ->endOfDay() agar seimbang dengan timestamp created_at
+                'tanggal' => Carbon::parse($item->tanggal_penghapusan)->endOfDay(),
+                'nomor_register' => $item->barang->nomor_register,
                 'aksi' => 'Penghapusan',
-
-                'barang' =>
-                    $item->barang->nama_barang
+                'barang' => $item->barang->nama_barang
             ]);
         }
 
@@ -136,13 +87,55 @@ class DashboardController extends Controller
         | Urutkan Aktivitas Terbaru
         |--------------------------------------------------------------------------
         */
+        $aktivitas = $aktivitas->sortByDesc('tanggal')->take(10);
 
-        $aktivitas = $aktivitas
-            ->sortByDesc('tanggal')
-            ->take(10);
+        /*
+        |--------------------------------------------------------------------------
+        | DATA GRAFIK
+        |--------------------------------------------------------------------------
+        */
+        // DIBENAHI: Filter agar barang yang dihitung hanya yang BUKAN 'Dihapus'
+        $grafikKategori = Kategori::withCount(['barang' => function ($query) {
+            $query->where('status', '!=', 'Dihapus');
+        }])->get();
 
-        // DATA GRAFIK
-        $grafikKategori = Kategori::withCount('barang')->get();
+        /*
+        |--------------------------------------------------------------------------
+        | DATA BARU: TREN PENGADAAN 6 BULAN TERAKHIR
+        |--------------------------------------------------------------------------
+        */
+        $labelsBulan = [];
+        $trenBulanan = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $labelsBulan[] = $date->format('M Y'); // Contoh: Jan 2024
+            
+            $count = Barang::where('status', '!=', 'Dihapus')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+                
+            $trenBulanan[] = $count;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA BARU: KONDISI BARANG SAAT INI
+        |--------------------------------------------------------------------------
+        */
+        $kondisiRaw = Barang::where('status', '!=', 'Dihapus')
+            ->selectRaw("kondisi, COUNT(*) as total")
+            ->groupBy('kondisi')
+            ->pluck('total', 'kondisi')
+            ->toArray();
+
+        // Pastikan urutannya selalu Baik, Rusak Ringan, Rusak Berat
+        $grafikKondisi = [
+            'Baik' => $kondisiRaw['Baik'] ?? 0,
+            'Rusak Ringan' => $kondisiRaw['Rusak Ringan'] ?? 0,
+            'Rusak Berat' => $kondisiRaw['Rusak Berat'] ?? 0,
+        ];
 
         return view(
             'dashboard',
@@ -152,7 +145,10 @@ class DashboardController extends Controller
                 'totalPerbaikan',
                 'totalDihapus',
                 'aktivitas',
-                'grafikKategori'
+                'grafikKategori',
+                'labelsBulan',      // Baru
+                'trenBulanan',      // Baru
+                'grafikKondisi'     // Baru
             )
         );
     }

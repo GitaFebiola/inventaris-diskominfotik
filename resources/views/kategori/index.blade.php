@@ -32,10 +32,10 @@
 <table class="table table-bordered table-striped align-middle datatable">
             <thead>
                 <tr>
-                    <th width="80">No</th>
+                    <th>No</th>
                     <th>Kode BMD</th>
                     <th>Nama Kategori</th>
-                    <th width="200">Aksi</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
 

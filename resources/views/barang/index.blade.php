@@ -27,7 +27,7 @@
 ];
 @endphp
 
-<form method="GET" action="{{ route('barang.index') }}" class="mb-3 d-flex gap-2 align-items-center">
+<form method="GET" action="{{ route('barang.index') }}" class="mb-3 d-flex gap-2 align-items-center flex-wrap">
 
     {{-- BULAN --}}
     <select name="bulan" class="form-select shadow-sm rounded-3" style="max-width: 200px;">
@@ -49,37 +49,43 @@
         @endfor
     </select>
 
-        {{-- KONDISI --}}
+    {{-- KONDISI --}}
     <select name="kondisi" class="form-select shadow-sm rounded-3" style="max-width: 180px;">
-    <option value="">Kondisi</option>
-    <option value="Baik" {{ request('kondisi') == 'Baik' ? 'selected' : '' }}>Baik</option>
-    
-    {{-- PASTIKAN VALUE HANYA "Rusak", BUKAN "Rusak (Semua)" --}}
-    <option value="Rusak" {{ request('kondisi') == 'Rusak' ? 'selected' : '' }}>Rusak (Semua)</option>
-    
-    <option value="Rusak Ringan" {{ request('kondisi') == 'Rusak Ringan' ? 'selected' : '' }}>Rusak Ringan</option>
-    <option value="Rusak Berat" {{ request('kondisi') == 'Rusak Berat' ? 'selected' : '' }}>Rusak Berat</option>
-</select>
+        <option value="">Kondisi</option>
+        <option value="Baik" {{ request('kondisi') == 'Baik' ? 'selected' : '' }}>Baik</option>
+        <option value="Rusak" {{ request('kondisi') == 'Rusak' ? 'selected' : '' }}>Rusak (Semua)</option>
+        <option value="Rusak Ringan" {{ request('kondisi') == 'Rusak Ringan' ? 'selected' : '' }}>Rusak Ringan</option>
+        <option value="Rusak Berat" {{ request('kondisi') == 'Rusak Berat' ? 'selected' : '' }}>Rusak Berat</option>
+    </select>
 
     {{-- BUTTON FILTER --}}
     <button type="submit" class="btn btn-primary shadow-sm px-3 rounded-3">
-        Filter
+        <i class="fas fa-filter"></i> Filter
     </button>
 
+    {{-- TOMBOL REFRESH (Hanya muncul jika ada filter aktif) --}}
+    @if(request('bulan') || request('tahun') || request('kondisi') || request('search'))
+        <a href="{{ route('barang.index') }}" 
+           class="btn btn-outline-secondary shadow-sm px-3 rounded-3" 
+           title="Hapus Filter">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </a>
+    @endif
+
     {{-- PDF --}}
-    <!-- request()->all() akan mengirimkan parameter bulan, tahun, dan kondisi ke PDF -->
     <a href="{{ route('barang.pdf', request()->all()) }}"
        class="btn btn-success shadow-sm px-3 rounded-3">
-        Unduh PDF
+        <i class="fas fa-file-pdf"></i> Unduh PDF
     </a>
 
     {{-- DISPLAY SELECTED FILTER --}}
-    @if(request('bulan') || request('tahun') || request('kondisi'))
-        <div class="ms-3 text-muted small">
+    @if(request('bulan') || request('tahun') || request('kondisi') || request('search'))
+        <div class="ms-3 text-muted small w-100 mt-1">
             <strong>Filter aktif:</strong>
             {{ $bulanList[request('bulan')] ?? '-' }}
             {{ request('tahun') ?? '' }}
             {{ request('kondisi') ? '| Kondisi: ' . request('kondisi') : '' }}
+            {{ request('search') ? '| Cari: ' . request('search') : '' }}
         </div>
     @endif
 
@@ -107,6 +113,8 @@
                 <th>Kondisi</th>
 
                 <th>Status</th>
+
+                <th>Keterangan</th>
 
                 <th>Aksi</th>
 
@@ -138,21 +146,18 @@
                 <td>
                     {{ $item->status == 'Aktif' ? 'Bagus' : $item->status }}
                 </td>
+                <td>{{ $item->keterangan ?? '-' }}</td>
 
-                <td>
+                <td class="text-nowrap text-center">
 
-    <a href="{{ route('barang.show',$item->id) }}"
-       class="btn btn-info btn-sm">
-
-        Detail
-
+    <a href="{{ route('barang.show', $item->id) }}"
+       class="btn btn-info btn-sm" title="Detail">
+        <span class="d-none d-sm-inline-block"> Detail</span>
     </a>
 
-    <a href="{{ route('barang.edit',$item->id) }}"
-       class="btn btn-warning btn-sm">
-
-        Edit
-
+    <a href="{{ route('barang.edit', $item->id) }}"
+       class="btn btn-warning btn-sm" title="Edit">
+        <span class="d-none d-sm-inline-block"> Edit</span>
     </a>
 
 </td>

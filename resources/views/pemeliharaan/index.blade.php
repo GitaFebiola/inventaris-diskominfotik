@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title','Pemeliharaan')
+@section('title','Pemeliharaan Barang')
 
 @section('content')
 
@@ -30,6 +30,7 @@
                     <th>No Register</th>
                     <th>Barang</th>
                     <th>Status</th>
+                    <th>Keterangan</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -53,7 +54,9 @@
                 <td>
                     {{ $item->status }}
                 </td>
-
+                <td>
+                    {{ $item->keterangan }}
+                </td>
                 <td>
 
                     <a href="{{ route('pemeliharaan.show',$item->id) }}"

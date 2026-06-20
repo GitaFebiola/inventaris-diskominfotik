@@ -59,16 +59,16 @@
                 <td>{{ $item->barang->nama_barang }}</td>
                 <td>{{ $item->ruanganAsal->nama_ruangan }}</td>
                 <td>{{ $item->ruanganTujuan->nama_ruangan }}</td>
-                <td>
-
-                    <a href="{{ route('mutasi.show',$item->id) }}"
-                       class="btn btn-info btn-sm">
-
-                        Detail
-
-                    </a>
-
-                </td>
+                <td class="text-nowrap text-center">
+    <a href="{{ route('mutasi.show', $item->id) }}"
+       class="btn btn-info btn-sm" title="Detail">
+        <span class="d-none d-sm-inline-block"> Detail</span>
+    </a>
+    <a href="{{ route('mutasi.edit', $item->id) }}"
+       class="btn btn-warning btn-sm" title="Edit">
+        <span class="d-none d-sm-inline-block"> Edit</span>
+    </a>
+</td>
 
             </tr>
 

@@ -135,7 +135,8 @@
                 <th width="5%">Tahun</th>
                 <th width="10%">Harga</th>
                 <th width="7%">Kondisi</th>
-                <th width="7%">Status</th>
+                <th width="15%">Keterangan</th>
+                <!-- <th width="7%">Status</th> -->
             </tr>
         </thead>
 
@@ -173,12 +174,15 @@
                 </td>
 
                 <td>{{ $item->kondisi }}</td>
+                 <td>
+                    {{ $item->keterangan ?? '-' }}
+                </td>
 
-                <td>{{ $item->status }}</td>
+                <!-- <td>{{ $item->status }}</td> -->
             </tr>
             @empty
             <tr>
-                <td colspan="13" class="text-center">
+                <td colspan="14" class="text-center">
                     Tidak ada data
                 </td>
             </tr>

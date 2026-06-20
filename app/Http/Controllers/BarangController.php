@@ -149,6 +149,7 @@ class BarangController extends Controller
             'tahun_perolehan' => 'required|digits:4',
             'harga_perolehan' => 'required|numeric|min:0',
             'kondisi' => 'required',
+            'keterangan' => 'nullable',
         ]);
 
         $fotoPath = null;
@@ -192,6 +193,8 @@ class BarangController extends Controller
 
             'kondisi' =>
                 $request->kondisi,
+            
+            'keterangan' => $request->keterangan,
 
             'status' =>
                 'Aktif'
@@ -240,6 +243,7 @@ class BarangController extends Controller
             'tahun_perolehan' => 'required|digits:4',
             'harga_perolehan' => 'required|numeric|min:0',
             'kondisi' => 'required',
+            'keterangan' => 'nullable',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -281,7 +285,8 @@ class BarangController extends Controller
                 $request->harga_perolehan,
 
             'kondisi' =>
-                $request->kondisi
+                $request->kondisi,
+            'keterangan' => $request->keterangan
         ]);
 
         return redirect()

@@ -150,18 +150,48 @@ class MutasiController extends Controller
     }
 
     public function edit(Mutasi $mutasi)
-    {
-        return redirect()
-            ->route('mutasi.index');
+{
+    $mutasi->load([
+        'barang',
+        'ruanganAsal',
+        'ruanganTujuan'
+    ]);
+
+    $ruangan = Ruangan::orderBy('nama_ruangan')->get();
+
+    return view('mutasi.edit', compact('mutasi', 'ruangan'));
+}
+
+public function update(Request $request, Mutasi $mutasi)
+{
+    $request->validate([
+        'ruangan_tujuan_id' => 'required|exists:ruangans,id',
+        'tanggal_mutasi' => 'required|date',
+        'keterangan' => 'nullable'
+    ]);
+
+    // Cek jika ruangan tujuan sama dengan ruangan asal
+    if ($mutasi->ruangan_asal_id == $request->ruangan_tujuan_id) {
+        return back()->with('error', 'Ruangan tujuan tidak boleh sama dengan ruangan asal.');
     }
 
-    public function update(
-        Request $request,
-        Mutasi $mutasi
-    ) {
-        return redirect()
-            ->route('mutasi.index');
-    }
+    $ruanganTujuanLama = $mutasi->ruangan_tujuan_id;
+
+    // Update data mutasi
+    $mutasi->update([
+        'ruangan_tujuan_id' => $request->ruangan_tujuan_id,
+        'tanggal_mutasi' => $request->tanggal_mutasi,
+        'keterangan' => $request->keterangan
+    ]);
+
+    // Update posisi barang saat ini ke ruangan tujuan yang baru
+    $mutasi->barang->update([
+        'ruangan_id' => $request->ruangan_tujuan_id
+    ]);
+
+    return redirect()->route('mutasi.index')
+        ->with('success', 'Mutasi berhasil diperbarui.');
+}
 
     public function destroy(
         Mutasi $mutasi

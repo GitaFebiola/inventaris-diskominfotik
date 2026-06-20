@@ -34,7 +34,7 @@
             <tr>
                 <th>No</th>
                 <th>Nama Ruangan</th>
-                <th>Penanggung Jawab</th>
+                <th>Pengurus Barang</th>
                 <th>Aksi</th>
             </tr>
             </thead>
