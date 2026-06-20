@@ -199,20 +199,24 @@
 
                         <tr>
 
-                            <th width="150">
+                            <th>
                                 Tanggal
                             </th>
 
-                            <th width="180">
+                            <th>
                                 No Register
                             </th>
 
-                            <th width="180">
+                            <th>
                                 Aktivitas
                             </th>
 
                             <th>
                                 Barang
+                            </th>
+
+                            <th >
+                                Dilakukan Oleh
                             </th>
 
                         </tr>
@@ -221,7 +225,6 @@
 
                     <tbody>
 
-                    {{-- DIUBAH: Ditambahkan ->sortByDesc('tanggal') agar terbaru di atas --}}
                     @forelse(collect($aktivitas)->sortByDesc('tanggal') as $item)
 
                         <tr>
@@ -276,13 +279,17 @@
 
                             </td>
 
+                            <td>
+                                {{ $item['user'] ?? '-' }}
+                            </td>
+
                         </tr>
 
                     @empty
 
                         <tr>
 
-                            <td colspan="4"
+                            <td colspan="5"
                                 class="text-center">
 
                                 Belum ada aktivitas.
@@ -389,7 +396,6 @@ if(grafikKategori)
 
                 ],
 
-                // PALET WARNA MODERN (Soft Gradient Colors)
                 backgroundColor: [
                     'rgba(99, 102, 241, 0.75)',   // Indigo
                     'rgba(59, 130, 246, 0.75)',   // Blue
@@ -410,9 +416,9 @@ if(grafikKategori)
                     'rgba(249, 115, 22, 1)',
                     'rgba(239, 68, 68, 1)'
                 ],
-                borderRadius: 8,          // Sudut membulat pada batang
-                borderSkipped: false,     // Membulatkan semua sudut
-                borderWidth: 0,           // Hilangkan garis tepi hitam
+                borderRadius: 8,          
+                borderSkipped: false,     
+                borderWidth: 0,           
                 barPercentage: 0.6,
                 categoryPercentage: 0.7
 
@@ -428,10 +434,10 @@ if(grafikKategori)
 
             plugins: {
                 legend: {
-                    display: false // Sembunyikan legend karena hanya 1 dataset
+                    display: false 
                 },
                 tooltip: {
-                    backgroundColor: '#0f172a', // Warna tooltip senada sidebar
+                    backgroundColor: '#0f172a', 
                     titleFont: { size: 13, weight: 'bold' },
                     bodyFont: { size: 12 },
                     padding: 12,
@@ -448,15 +454,15 @@ if(grafikKategori)
 
                     ticks: {
                         precision: 0,
-                        color: '#64748b', // Warna teks abu-abu lembut
+                        color: '#64748b', 
                         font: { size: 12 }
                     },
                     grid: {
-                        color: 'rgba(148, 163, 184, 0.15)', // Garis grid sangat tipis dan transparan
+                        color: 'rgba(148, 163, 184, 0.15)', 
                         drawBorder: false,
                     },
                     border: {
-                        display: false // Hilangkan garis tepi kiri
+                        display: false 
                     }
 
                 },
@@ -467,10 +473,10 @@ if(grafikKategori)
                         font: { size: 12 }
                     },
                     grid: {
-                        display: false // Hilangkan garis grid vertikal
+                        display: false 
                     },
                     border: {
-                        display: false // Hilangkan garis tepi bawah
+                        display: false 
                     }
                 }
 
@@ -497,9 +503,9 @@ if(ctxKondisi) {
                     {{ $grafikKondisi['Rusak Berat'] }}
                 ],
                 backgroundColor: [
-                    'rgba(34, 197, 94, 0.85)',  // Hijau
-                    'rgba(249, 115, 22, 0.85)', // Orange
-                    'rgba(239, 68, 68, 0.85)'   // Merah
+                    'rgba(34, 197, 94, 0.85)',  
+                    'rgba(249, 115, 22, 0.85)', 
+                    'rgba(239, 68, 68, 0.85)'   
                 ],
                 borderWidth: 0,
                 hoverOffset: 8
@@ -508,7 +514,7 @@ if(ctxKondisi) {
         options: {
             responsive: true, 
             maintainAspectRatio: false,
-            cutout: '70%', // Membuat cincin tipis yang modern
+            cutout: '70%', 
             plugins: {
                 legend: { 
                     position: 'bottom', 
@@ -540,8 +546,8 @@ if(ctxTren) {
                 pointBorderWidth: 2,
                 pointRadius: 5,
                 pointHoverRadius: 7,
-                fill: true, // Memberikan efek area gradient di bawah garis
-                tension: 0.4 // Membuat garis melengkung halus
+                fill: true, 
+                tension: 0.4 
             }]
         },
         options: {

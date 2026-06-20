@@ -79,7 +79,7 @@ class MutasiController extends Controller
             'barang_id' => 'required|exists:barangs,id',
             'ruangan_tujuan_id' => 'required|exists:ruangans,id',
             'tanggal_mutasi' => 'required|date',
-            'keterangan' => 'nullable'
+            'keterangan' => 'nullable',
         ]);
 
         $barang = Barang::findOrFail(
@@ -119,7 +119,8 @@ class MutasiController extends Controller
                 $request->tanggal_mutasi,
 
             'keterangan' =>
-                $request->keterangan
+                $request->keterangan,
+                'user_id' => auth()->id()
         ]);
 
         $barang->update([

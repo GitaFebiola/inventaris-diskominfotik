@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\Mutasi;
-use App\Models\Pemeliharaan;
-use App\Models\Penghapusan;
 use App\Models\Kategori;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -22,79 +21,76 @@ class DashboardController extends Controller
 
         $totalDihapus = Barang::where('status', 'Dihapus')->count();
 
-        $aktivitas = collect();
-
         /*
         |--------------------------------------------------------------------------
-        | Pengadaan Barang
+        | QUERY UNION: Menggabungkan 4 TABEL menjadi 1, lalu ambil 10 terbaru
         |--------------------------------------------------------------------------
         */
-        foreach (Barang::latest()->take(5)->get() as $item) {
-            $aktivitas->push([
-                'tanggal' => $item->created_at,
+        $aktivitasRaw = DB::table('barangs')
+            ->select([
+                'created_at as tanggal_aktivitas',
+                DB::raw("'Pengadaan' as aksi"),
+                'nomor_register',
+                'nama_barang as barang',
+                'user_id'
+            ])
+            ->unionAll(
+                DB::table('mutasis')
+                    ->join('barangs as b1', 'mutasis.barang_id', '=', 'b1.id')
+                    ->select([
+                        DB::raw("CAST(CONCAT(mutasis.tanggal_mutasi, ' 23:59:59') AS DATETIME) as tanggal_aktivitas"),
+                        DB::raw("'Mutasi' as aksi"),
+                        'b1.nomor_register',
+                        'b1.nama_barang as barang',
+                        'mutasis.user_id'
+                    ])
+            )
+            ->unionAll(
+                DB::table('pemeliharaans')
+                    ->join('barangs as b2', 'pemeliharaans.barang_id', '=', 'b2.id') // SUDAH DIPERBAIKI (dikasih huruf s)
+                    ->select([
+                        'pemeliharaans.updated_at as tanggal_aktivitas',
+                        DB::raw("IF(pemeliharaans.status = 'Selesai', 'Selesai Perbaikan', 'Perbaikan') as aksi"),
+                        'b2.nomor_register',
+                        'b2.nama_barang as barang',
+                        'pemeliharaans.user_id'
+                    ])
+            )
+            ->unionAll(
+                DB::table('penghapusans')
+                    ->join('barangs as b3', 'penghapusans.barang_id', '=', 'b3.id')
+                    ->select([
+                        DB::raw("CAST(CONCAT(penghapusans.tanggal_penghapusan, ' 23:59:59') AS DATETIME) as tanggal_aktivitas"),
+                        DB::raw("'Penghapusan' as aksi"),
+                        'b3.nomor_register',
+                        'b3.nama_barang as barang',
+                        'penghapusans.user_id'
+                    ])
+            )
+            ->orderBy('tanggal_aktivitas', 'desc')
+            ->take(10)
+            ->get();
+
+        // Ambil ID User yang terlibat di 10 data tersebut untuk menghindari N+1 Query
+        $userIds = $aktivitasRaw->pluck('user_id')->unique()->filter()->toArray();
+        $users = User::whereIn('id', $userIds)->pluck('name', 'id');
+
+        // Mapping data ke format yang digunakan di Blade
+        $aktivitas = $aktivitasRaw->map(function ($item) use ($users) {
+            return [
+                'tanggal' => $item->tanggal_aktivitas,
                 'nomor_register' => $item->nomor_register,
-                'aksi' => 'Pengadaan',
-                'barang' => $item->nama_barang
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Mutasi Barang
-        |--------------------------------------------------------------------------
-        */
-        foreach (Mutasi::with('barang')->latest()->take(5)->get() as $item) {
-            $aktivitas->push([
-                // DIBENAHI: Tambah ->endOfDay() agar seimbang dengan timestamp created_at
-                'tanggal' => Carbon::parse($item->tanggal_mutasi)->endOfDay(), 
-                'nomor_register' => $item->barang->nomor_register,
-                'aksi' => 'Mutasi',
-                'barang' => $item->barang->nama_barang
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Pemeliharaan / Perbaikan
-        |--------------------------------------------------------------------------
-        */
-        foreach (Pemeliharaan::with('barang')->latest()->take(5)->get() as $item) {
-            $aktivitas->push([
-                'tanggal' => $item->updated_at,
-                'nomor_register' => $item->barang->nomor_register,
-                'aksi' => $item->status == 'Selesai' ? 'Selesai Perbaikan' : 'Perbaikan',
-                'barang' => $item->barang->nama_barang
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Penghapusan Barang
-        |--------------------------------------------------------------------------
-        */
-        foreach (Penghapusan::with('barang')->latest()->take(5)->get() as $item) {
-            $aktivitas->push([
-                // DIBENAHI: Tambah ->endOfDay() agar seimbang dengan timestamp created_at
-                'tanggal' => Carbon::parse($item->tanggal_penghapusan)->endOfDay(),
-                'nomor_register' => $item->barang->nomor_register,
-                'aksi' => 'Penghapusan',
-                'barang' => $item->barang->nama_barang
-            ]);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Urutkan Aktivitas Terbaru
-        |--------------------------------------------------------------------------
-        */
-        $aktivitas = $aktivitas->sortByDesc('tanggal')->take(10);
+                'aksi' => $item->aksi,
+                'barang' => $item->barang,
+                'user' => $users[$item->user_id] ?? 'Tidak Dicatat'
+            ];
+        });
 
         /*
         |--------------------------------------------------------------------------
         | DATA GRAFIK
         |--------------------------------------------------------------------------
         */
-        // DIBENAHI: Filter agar barang yang dihitung hanya yang BUKAN 'Dihapus'
         $grafikKategori = Kategori::withCount(['barang' => function ($query) {
             $query->where('status', '!=', 'Dihapus');
         }])->get();
@@ -109,7 +105,7 @@ class DashboardController extends Controller
         
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
-            $labelsBulan[] = $date->format('M Y'); // Contoh: Jan 2024
+            $labelsBulan[] = $date->format('M Y'); 
             
             $count = Barang::where('status', '!=', 'Dihapus')
                 ->whereYear('created_at', $date->year)
@@ -130,7 +126,6 @@ class DashboardController extends Controller
             ->pluck('total', 'kondisi')
             ->toArray();
 
-        // Pastikan urutannya selalu Baik, Rusak Ringan, Rusak Berat
         $grafikKondisi = [
             'Baik' => $kondisiRaw['Baik'] ?? 0,
             'Rusak Ringan' => $kondisiRaw['Rusak Ringan'] ?? 0,
@@ -146,9 +141,9 @@ class DashboardController extends Controller
                 'totalDihapus',
                 'aktivitas',
                 'grafikKategori',
-                'labelsBulan',      // Baru
-                'trenBulanan',      // Baru
-                'grafikKondisi'     // Baru
+                'labelsBulan',      
+                'trenBulanan',      
+                'grafikKondisi'     
             )
         );
     }

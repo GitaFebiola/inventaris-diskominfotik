@@ -15,14 +15,18 @@ class Pemeliharaan extends Model
         'jenis_pemeliharaan',
         'biaya',
         'keterangan',
-        'status'
+        'status',
+        'user_id' // DITAMBAHKAN
     ];
 
     public function barang()
     {
-        return $this->belongsTo(
-            Barang::class,
-            'barang_id'
-        );
+        return $this->belongsTo(Barang::class, 'barang_id');
+    }
+
+    // DITAMBAHKAN
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

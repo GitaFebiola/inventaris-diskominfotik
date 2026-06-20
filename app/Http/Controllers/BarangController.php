@@ -195,6 +195,7 @@ class BarangController extends Controller
                 $request->kondisi,
             
             'keterangan' => $request->keterangan,
+            'user_id' => auth()->id(),
 
             'status' =>
                 'Aktif'

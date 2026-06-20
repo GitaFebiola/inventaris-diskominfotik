@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Penghapusan;
+use App\Models\Ruangan;
 use Illuminate\Http\Request;
 
 class PenghapusanController extends Controller
@@ -48,20 +49,20 @@ class PenghapusanController extends Controller
     );
 }
 
-    public function create()
-    {
-        $barang = Barang::where(
-            'status',
-            'Aktif'
-        )->orderBy(
-            'nama_barang'
-        )->get();
+   public function create()
+{
+    $barang = Barang::with('ruangan')
+        ->where('status', 'Aktif')
+        ->orderBy('nama_barang')
+        ->get();
 
-        return view(
-            'penghapusan.create',
-            compact('barang')
-        );
-    }
+    $ruangan = Ruangan::orderBy('nama_ruangan')->get();
+
+    return view(
+        'penghapusan.create',
+        compact('barang', 'ruangan')
+    );
+}
 
     public function store(Request $request)
     {
@@ -69,7 +70,7 @@ class PenghapusanController extends Controller
             'barang_id' => 'required|exists:barangs,id',
             'tanggal_penghapusan' => 'required|date',
             'alasan' => 'required|max:100',
-            'keterangan' => 'nullable'
+            'keterangan' => 'nullable',
         ]);
 
         $barang = Barang::findOrFail(
@@ -88,7 +89,8 @@ class PenghapusanController extends Controller
             'barang_id' => $barang->id,
             'tanggal_penghapusan' => $request->tanggal_penghapusan,
             'alasan' => $request->alasan,
-            'keterangan' => $request->keterangan
+            'keterangan' => $request->keterangan,
+            'user_id' => auth()->id()
         ]);
 
         $barang->update([

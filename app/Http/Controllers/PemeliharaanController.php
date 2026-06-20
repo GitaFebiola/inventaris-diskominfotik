@@ -71,7 +71,7 @@ public function create()
             'tanggal_pemeliharaan' => 'required|date',
             'jenis_pemeliharaan' => 'required|max:255',
             'biaya' => 'nullable|numeric',
-            'keterangan' => 'nullable'
+            'keterangan' => 'nullable',
         ]);
 
         $barang = Barang::findOrFail(
@@ -91,7 +91,8 @@ public function create()
             'jenis_pemeliharaan' => $request->jenis_pemeliharaan,
             'biaya' => $request->biaya,
             'keterangan' => $request->keterangan,
-            'status' => 'Proses'
+            'status' => 'Proses',
+            'user_id' => auth()->id()
         ]);
 
         $barang->update([

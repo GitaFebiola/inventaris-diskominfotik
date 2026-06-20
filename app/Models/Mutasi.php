@@ -14,7 +14,8 @@ class Mutasi extends Model
         'ruangan_asal_id',
         'ruangan_tujuan_id',
         'tanggal_mutasi',
-        'keterangan'
+        'keterangan',
+        'user_id'
     ];
 
     public function barang()
@@ -39,5 +40,9 @@ class Mutasi extends Model
             Ruangan::class,
             'ruangan_tujuan_id'
         );
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

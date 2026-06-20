@@ -32,7 +32,7 @@
 
             <div class="mb-3">
 
-                <label>Penanggung Jawab</label>
+                <label>Pengurus Barang</label>
 
                 <input
                     type="text"

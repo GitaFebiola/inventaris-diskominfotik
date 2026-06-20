@@ -13,14 +13,18 @@ class Penghapusan extends Model
         'barang_id',
         'tanggal_penghapusan',
         'alasan',
-        'keterangan'
+        'keterangan',
+        'user_id' // DITAMBAHKAN
     ];
 
     public function barang()
     {
-        return $this->belongsTo(
-            Barang::class,
-            'barang_id'
-        );
+        return $this->belongsTo(Barang::class, 'barang_id');
+    }
+
+    // DITAMBAHKAN
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

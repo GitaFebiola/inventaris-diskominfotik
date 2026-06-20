@@ -22,7 +22,8 @@ class Barang extends Model
         'harga_perolehan',
         'kondisi',
         'status',
-        'keterangan'
+        'keterangan',
+        'user_id'
     ];
 
     public function kategori()
@@ -48,5 +49,9 @@ class Barang extends Model
     public function penghapusans()
     {
         return $this->hasMany(Penghapusan::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
