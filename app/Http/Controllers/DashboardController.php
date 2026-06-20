@@ -23,59 +23,75 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | QUERY UNION: Menggabungkan 4 TABEL menjadi 1, lalu ambil 10 terbaru
+        | QUERY UNION: Semua punya kolom 'waktu_sortir' yang pasti terisi timestamp
         |--------------------------------------------------------------------------
         */
-        $aktivitasRaw = DB::table('barangs')
+        
+        // 1. Pengadaan
+        $pengadaan = DB::table('barangs')
             ->select([
                 'created_at as tanggal_aktivitas',
+                'created_at as waktu_sortir', // Diisi created_at
                 DB::raw("'Pengadaan' as aksi"),
                 'nomor_register',
                 'nama_barang as barang',
                 'user_id'
-            ])
-            ->unionAll(
-                DB::table('mutasis')
-                    ->join('barangs as b1', 'mutasis.barang_id', '=', 'b1.id')
-                    ->select([
-                        DB::raw("CAST(CONCAT(mutasis.tanggal_mutasi, ' 23:59:59') AS DATETIME) as tanggal_aktivitas"),
-                        DB::raw("'Mutasi' as aksi"),
-                        'b1.nomor_register',
-                        'b1.nama_barang as barang',
-                        'mutasis.user_id'
-                    ])
-            )
-            ->unionAll(
-                DB::table('pemeliharaans')
-                    ->join('barangs as b2', 'pemeliharaans.barang_id', '=', 'b2.id') // SUDAH DIPERBAIKI (dikasih huruf s)
-                    ->select([
-                        'pemeliharaans.updated_at as tanggal_aktivitas',
-                        DB::raw("IF(pemeliharaans.status = 'Selesai', 'Selesai Perbaikan', 'Perbaikan') as aksi"),
-                        'b2.nomor_register',
-                        'b2.nama_barang as barang',
-                        'pemeliharaans.user_id'
-                    ])
-            )
-            ->unionAll(
-                DB::table('penghapusans')
-                    ->join('barangs as b3', 'penghapusans.barang_id', '=', 'b3.id')
-                    ->select([
-                        DB::raw("CAST(CONCAT(penghapusans.tanggal_penghapusan, ' 23:59:59') AS DATETIME) as tanggal_aktivitas"),
-                        DB::raw("'Penghapusan' as aksi"),
-                        'b3.nomor_register',
-                        'b3.nama_barang as barang',
-                        'penghapusans.user_id'
-                    ])
-            )
-            ->orderBy('tanggal_aktivitas', 'desc')
+            ]);
+
+        // 2. Mutasi
+        $mutasi = DB::table('mutasis')
+            ->join('barangs as b1', 'mutasis.barang_id', '=', 'b1.id')
+            ->select([
+                'mutasis.tanggal_mutasi as tanggal_aktivitas', // Untuk ditampilkan
+                'mutasis.created_at as waktu_sortir',          // Diisi created_at
+                DB::raw("'Mutasi' as aksi"),
+                'b1.nomor_register',
+                'b1.nama_barang as barang',
+                'mutasis.user_id'
+            ]);
+
+        // 3. Pemeliharaan
+        $pemeliharaan = DB::table('pemeliharaans')
+            ->join('barangs as b2', 'pemeliharaans.barang_id', '=', 'b2.id')
+            ->select([
+                'pemeliharaans.updated_at as tanggal_aktivitas', // Untuk ditampilkan
+                'pemeliharaans.updated_at as waktu_sortir',     // Diisi updated_at
+                DB::raw("IF(pemeliharaans.status = 'Selesai', 'Selesai Perbaikan', 'Perbaikan') as aksi"),
+                'b2.nomor_register',
+                'b2.nama_barang as barang',
+                'pemeliharaans.user_id'
+            ]);
+
+        // 4. Penghapusan
+        $penghapusan = DB::table('penghapusans')
+            ->join('barangs as b3', 'penghapusans.barang_id', '=', 'b3.id')
+            ->select([
+                'penghapusans.tanggal_penghapusan as tanggal_aktivitas', // Untuk ditampilkan
+                'penghapusans.created_at as waktu_sortir',               // Diisi created_at
+                DB::raw("'Penghapusan' as aksi"),
+                'b3.nomor_register',
+                'b3.nama_barang as barang',
+                'penghapusans.user_id'
+            ]);
+
+        // Gabungkan semua
+        $unionQuery = $pengadaan
+            ->unionAll($mutasi)
+            ->unionAll($pemeliharaan)
+            ->unionAll($penghapusan);
+
+        // Urutkan berdasarkan waktu_sortir (pasti akurat karena tidak ada yang NULL)
+        $aktivitasRaw = DB::query()
+            ->fromSub($unionQuery, 'aktivitas_gabungan')
+            ->orderBy('waktu_sortir', 'desc') 
             ->take(10)
             ->get();
 
-        // Ambil ID User yang terlibat di 10 data tersebut untuk menghindari N+1 Query
+        // Ambil User yang terlibat
         $userIds = $aktivitasRaw->pluck('user_id')->unique()->filter()->toArray();
         $users = User::whereIn('id', $userIds)->pluck('name', 'id');
 
-        // Mapping data ke format yang digunakan di Blade
+        // Mapping data (tanggal yang ditampilkan tetap tanggal_aktivitas)
         $aktivitas = $aktivitasRaw->map(function ($item) use ($users) {
             return [
                 'tanggal' => $item->tanggal_aktivitas,
@@ -95,11 +111,6 @@ class DashboardController extends Controller
             $query->where('status', '!=', 'Dihapus');
         }])->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | DATA BARU: TREN PENGADAAN 6 BULAN TERAKHIR
-        |--------------------------------------------------------------------------
-        */
         $labelsBulan = [];
         $trenBulanan = [];
         
@@ -115,11 +126,6 @@ class DashboardController extends Controller
             $trenBulanan[] = $count;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | DATA BARU: KONDISI BARANG SAAT INI
-        |--------------------------------------------------------------------------
-        */
         $kondisiRaw = Barang::where('status', '!=', 'Dihapus')
             ->selectRaw("kondisi, COUNT(*) as total")
             ->groupBy('kondisi')
